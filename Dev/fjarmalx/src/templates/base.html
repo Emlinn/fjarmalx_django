@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    {% load static %}
+    <link rel="icon" href="../../../../favicon.ico">
+
+    <title>Fjármál X</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+  </head>
+
+  <body>
+    <nav class="navbar navbar-dark sticky-top  flex-md-nowrap p-0">
+      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Fjármál X</a>
+      <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+          <a class="nav-link" href="/admin">Admin</a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <nav class="col-md-2 d-none d-md-block sidebar">
+          <div class="sidebar-sticky">
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a class="nav-link active" href="/">
+                  <span data-feather="box"></span>
+                  Home <span class="sr-only">(current)</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/marketport">
+                  <span data-feather="activity"></span>
+                  Market Portfolio
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="bar-chart-2"></span>
+                  Strategies
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="shield"></span>
+                  Risk Management
+                </a>
+              </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/about">
+                <span data-feather="github"></span>
+                About us
+              </a>
+            </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="help-circle"></span>
+                  Help
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h1 class="h2">Stock market</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+              <div class="btn-group dropleft">
+                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <span data-feather="eye"></span>
+                  OMXI8
+                </button>
+                <div class="dropdown-menu">
+                  <!-- Dropdown menu links -->
+                  <a class="dropdown-item" href="#">SKEL</a>
+                  <a class="dropdown-item" href="#">EIK</a>
+                  <a class="dropdown-item" href="#">REITIR</a>
+                  <a class="dropdown-item" href="#">SIMINN</a>
+                  <a class="dropdown-item" href="#">GRND</a>
+                  <a class="dropdown-item" href="#">SJOVA</a>
+                  <a class="dropdown-item" href="#">N1</a>
+                  <a class="dropdown-item" href="#">TM</a>
+                  <a class="dropdown-item" href="#">VIS</a>
+                  <a class="dropdown-item" href="#">VOICE</a>
+                  <a class="dropdown-item" href="#">EIM</a>
+                  <a class="dropdown-item" href="#">REGINN</a>
+                  <a class="dropdown-item" href="#">HAGA</a>
+                  <a class="dropdown-item" href="#">ORIGO</a>
+                  <a class="dropdown-item" href="#">ICEAIR</a>
+                  <a class="dropdown-item" href="#">MARL</a>
+                </div>
+              </div>
+              <div class="btn-group dropleft" id="bootstrap-overrides">
+                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <span data-feather="calendar"></span>
+                  Time
+                </button>
+                <div class="dropdown-menu">
+                  <!-- Dropdown menu links -->
+                  <a class="dropdown-item" href="#">Last week</a>
+                  <a class="dropdown-item" href="#">Last month</a>
+                  <a class="dropdown-item" href="#">Last year</a>
+                  <a class="dropdown-item" href="#">Last 5 years</a>
+                </div>
+              </div>
+              <div id=buttonOverwrite>
+              <button type="button" class="btn btn-outline-danger" type="submit" value="Submit">
+                <span data-feather="plus"></span>
+                Submit
+              </button>
+            </div>
+            </div>
+          </div>
+          {% block content %}
+          {{ officialLast }}
+          {% endblock %}
+          <canvas class="my-4" id="myChart" width="900" height="380"></canvas>
+
+          <h2>OMXI8 Prices (Today)</h2>
+          <div class="table-responsive">
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Price</th>
+                  <th>Change</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{{ shortNames.0 }}</td>
+                  <td>{{ valueCurr.0 }}</td>
+                  <td>%</td>
+                </tr>
+                <tr>
+                  <td>{{ shortNames.1 }}</td>
+                  <td>{{ valueCurr.1 }}</td>
+                  <td>%</td>
+                </tr>
+                <tr>
+                  <td>{{ shortNames.2 }}</td>
+                  <td>{{ valueCurr.2 }}</td>
+                  <td>%</td>
+                </tr>
+                <tr>
+                  <td>{{ shortNames.3 }}</td>
+                  <td>{{ valueCurr.3 }}</td>
+                  <td>%</td>
+                </tr>
+                <tr>
+                  <td>{{ shortNames.4 }}</td>
+                  <td>{{ valueCurr.4 }}</td>
+                  <td>%</td>
+                </tr>
+                <tr>
+                  <td>{{ shortNames.5 }}</td>
+                  <td>{{ valueCurr.5 }}</td>
+                  <td>%</td>
+                </tr>
+                <tr>
+                  <td>{{ shortNames.6 }}</td>
+                  <td>{{ valueCurr.6 }}</td>
+                  <td>%</td>
+                </tr>
+                <tr>
+                  <td>{{ shortNames.7 }}</td>
+                  <td>{{ valueCurr.7 }}</td>
+                  <td>%</td>
+                </tr>
+                <tr>
+                  <td>{{ shortNames.8 }}</td>
+                  <td>{{ valueCurr.8 }}</td>
+                  <td>%</td>
+                </tr>
+                <tr>
+                  <td>{{ shortNames.9 }}</td>
+                  <td>{{ valueCurr.9 }}</td>
+                  <td>%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2>Currency</h2>
+          <div class="table-responsive">
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  <th>Currency</th>
+                  <th>Value</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{{ shortNames.0 }}</td>
+                  <td>{{ valueCurr.0 }}</td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td>{{ shortNames.1 }}</td>
+                  <td>{{ valueCurr.1 }}</td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td>{{ shortNames.2 }}</td>
+                  <td>{{ valueCurr.2 }}</td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td>{{ shortNames.3 }}</td>
+                  <td>{{ valueCurr.3 }}</td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td>{{ shortNames.4 }}</td>
+                  <td>{{ valueCurr.4 }}</td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td>{{ shortNames.5 }}</td>
+                  <td>{{ valueCurr.5 }}</td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td>{{ shortNames.6 }}</td>
+                  <td>{{ valueCurr.6 }}</td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td>{{ shortNames.7 }}</td>
+                  <td>{{ valueCurr.7 }}</td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td>{{ shortNames.8 }}</td>
+                  <td>{{ valueCurr.8 }}</td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td>{{ shortNames.9 }}</td>
+                  <td>{{ valueCurr.9 }}</td>
+                  <td>-</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="../../../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+    <script>
+      feather.replace()
+    </script>
+
+    <!-- Graphs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+    <script>
+      var ctx = document.getElementById("myChart");
+      var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: {{ officialLast }},
+          datasets: [{
+            data: {{ officialLast }},
+            lineTension: 0,
+            pointRadius: 0,
+            backgroundColor: 'transparent',
+            borderColor: '#007bff',
+            borderWidth: 4,
+            pointBackgroundColor: '#007bff'
+          }]
+        },
+        options: {
+          scales: {
+            yAxes: [{
+              ticks: {
+                beginAtZero: false
+              }
+            }]
+          },
+          legend: {
+            display: false,
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
