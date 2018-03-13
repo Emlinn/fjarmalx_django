@@ -20,7 +20,7 @@
 
   <body>
     <nav class="navbar navbar-dark sticky-top  flex-md-nowrap p-0">
-      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Fjármál X</a>
+      <a class="navbar-brand col-sm-3 col-md-1 mr-0" href="#">Fjármál X</a>
       <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
           <a class="nav-link" href="/admin">Admin</a>
@@ -30,19 +30,19 @@
 
     <div class="container-fluid">
       <div class="row">
-        <nav class="col-md-2 d-none d-md-block sidebar">
-          <div class="sidebar-sticky">
+        <nav class="col-md-1 d-none d-md-block sidebar">
+          <div class="sidebar-sticky" id="sidebarOverwrite">
             <ul class="nav flex-column">
               <li class="nav-item">
                 <a class="nav-link" href="/">
                   <span data-feather="box"></span>
-                  Home
+                  Home <span class="sr-only">(current)</span>
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link active" href="/marketport">
                   <span data-feather="activity"></span>
-                  Market Portfolio
+                  Portfolio
                 </a>
               </li>
               <li class="nav-item">
@@ -54,7 +54,7 @@
               <li class="nav-item">
                 <a class="nav-link" href="#">
                   <span data-feather="shield"></span>
-                  Risk Management
+                  Risk
                 </a>
               </li>
             <li class="nav-item">
@@ -73,7 +73,7 @@
           </div>
         </nav>
 
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-11 pt-3 px-4" id="maindiv">
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h1 class="h2">Market Portfolio</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
@@ -90,13 +90,22 @@
                   <a class="dropdown-item" href="#">Last 5 years</a>
                 </div>
               </div>
+              <div id=buttonOverwrite>
+              <button type="button" class="btn btn-outline-danger" type="submit" value="Submit">
+                <span data-feather="plus"></span>
+                Submit
+              </button>
+            </div>
             </div>
           </div>
-          {% block content %}
-          {{ officialLast }}
-          {% endblock %}
-          <canvas class="my-4" id="myChart" width="900" height="380"></canvas>
 
+          <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-12" id="colstyle">
+                  <canvas class="my-4" id="myChart" width="900" height="380"></canvas>
+                </div>
+              </div>
+            </div>
         </main>
       </div>
     </div>
@@ -122,13 +131,14 @@
       var myChart = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+          labels: {{ officialLast }},
           datasets: [{
-            data: [{{ officialLast.0 }}, {{ officialLast.1 }}, {{ officialLast.2 }}, {{ officialLast.3 }}, {{ officialLast.4 }}, {{ officialLast.5 }}, {{ officialLast.6 }}],
+            data: {{ officialLast }},
             lineTension: 0,
+            pointRadius: 0,
             backgroundColor: 'transparent',
-            borderColor: '#007bff',
-            borderWidth: 4,
+            borderColor: '#dc3545',
+            borderWidth: 2,
             pointBackgroundColor: '#007bff'
           }]
         },

@@ -20,7 +20,7 @@
 
   <body>
     <nav class="navbar navbar-dark sticky-top  flex-md-nowrap p-0">
-      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Fjármál X</a>
+      <a class="navbar-brand col-sm-3 col-md-1 mr-0" href="#">Fjármál X</a>
       <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
           <a class="nav-link" href="/admin">Admin</a>
@@ -30,8 +30,8 @@
 
     <div class="container-fluid">
       <div class="row">
-        <nav class="col-md-2 d-none d-md-block sidebar">
-          <div class="sidebar-sticky">
+        <nav class="col-md-1 d-none d-md-block sidebar">
+          <div class="sidebar-sticky" id="sidebarOverwrite">
             <ul class="nav flex-column">
               <li class="nav-item">
                 <a class="nav-link" href="/">
@@ -42,7 +42,7 @@
               <li class="nav-item">
                 <a class="nav-link" href="/marketport">
                   <span data-feather="activity"></span>
-                  Market Portfolio
+                  Portfolio
                 </a>
               </li>
               <li class="nav-item">
@@ -54,7 +54,7 @@
               <li class="nav-item">
                 <a class="nav-link" href="#">
                   <span data-feather="shield"></span>
-                  Risk Management
+                  Risk
                 </a>
               </li>
             <li class="nav-item">
@@ -73,35 +73,53 @@
           </div>
         </nav>
 
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-11 pt-3 px-4" id="maindiv">
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h1 class="h2">About us</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+            </div>
+          </div>
 
-
-
-      </div>
-      <div class="container-fluid">
+          <div class="container-fluid">
+            <div class="container-fluid">
         <div class="row">
               <div class="col-sm-4">
                 <img src="http://www.uriux.com/wp-content/uploads/2017/09/male-placeholder.jpg" alt="Avatar" id="imagestyle">
-                <h3> Emil Ragnarsson </h3>
-                <p> lalalalalalalalalalalalalalalalalalal lal al al lal al </p>
+                <h3> Anton O. Kristjánsson </h3>
+                <p> lalalalalalalalalalalalalalalalalalal </p>
               </div>
               <div class="col-sm-4">
                 <img src="http://www.uriux.com/wp-content/uploads/2017/09/male-placeholder.jpg" alt="Avatar" id="imagestyle">
-                <h3>Ingvar Ágúst Jochumsson </h3>
-                <p> B.sc. í núbbafræði </p>
+                <h3> Arnar Tjörvi Charlesson </h3>
+                <p> lalalalalalalalalalalalalalalalalalal </p>
                 </div>
               <div class="col-sm-4">
                 <img src="http://www.uriux.com/wp-content/uploads/2017/09/male-placeholder.jpg" alt="Avatar" id="imagestyle">
-                <h3>Eh annar </h3>
-                <p> B.sc. í núbbafræði </p>
+                <h3> Arnar Þór Ólafsson </h3>
+                <p> lalalalalalalalalalalalalalalalalalal </p>
               </div>
             </div>
+            <div class="row" id="rowstyle">
+                  <div class="col-sm-4">
+                    <img src="http://www.uriux.com/wp-content/uploads/2017/09/male-placeholder.jpg" alt="Avatar" id="imagestyle">
+                    <h3> Emil Ragnarsson </h3>
+                    <p> lalalalalalalalalalalalalalalalalalal </p>
+                  </div>
+                  <div class="col-sm-4">
+                    <img src="http://www.uriux.com/wp-content/uploads/2017/09/male-placeholder.jpg" alt="Avatar" id="imagestyle">
+                    <h3> Ingvar Ágúst Jochumsson </h3>
+                    <p> lalalalalalalalalalalalalalalalalalal </p>
+                    </div>
+                  <div class="col-sm-4">
+                    <img src="http://www.uriux.com/wp-content/uploads/2017/09/male-placeholder.jpg" alt="Avatar" id="imagestyle">
+                    <h3> Ómar Birgisson </h3>
+                    <p> lalalalalalalalalalalalalalalalalalal </p>
+                  </div>
+                </div>
           </div>
-        </div>
-    </div>
-  </main>
+            </div>
+        </main>
+      </div>
     </div>
 
     <!-- Bootstrap core JavaScript
