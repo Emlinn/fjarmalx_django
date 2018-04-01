@@ -4,7 +4,6 @@ body {
   height: 100%;
   width: 100%;
   display: table;
-
 }
 
 #bootstrap-overrides {
@@ -34,6 +33,7 @@ body {
 #divtest {
   height: auto;
   padding-left: 0px;
+  padding-right: 0px;
   margin-bottom: 30px;
 }
 
@@ -150,7 +150,7 @@ body {
  */
 
 #scrollable {
-  height: 28rem;
+  height: 300px;
   overflow: auto;
 }
 

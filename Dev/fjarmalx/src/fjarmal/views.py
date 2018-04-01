@@ -1,32 +1,52 @@
 from django.shortcuts import render
 from django.views.generic import View
+from fjarmal.calc import *
 import requests
+import pandas as pd
+import numpy as np
+
+DEFAULT_SYMBOLS = ['SKEL','EIK','REITIR','SIMINN','GRND',
+                    'SJOVA','N1','TM','VIS','VOICE','EIM',
+                    'EIM','REGINN','HAGA','ORIGO','ICEAIR',
+                    'MARL']
+DEFAULT_FROMDATE = "1.3.2017"
+DEFAULT_TODATE = "13.3.2018"
+HEADERS = {
+    'Accept': 'text/json',
+    'Authorization': 'GUSER-a9f2e5e6-197a-45a0-82ab-e6e32adfc73d'
+    }
+SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
+
+def getStocks():
+    stocks = { key: [] for key in DEFAULT_SYMBOLS }
+
+    for symb in DEFAULT_SYMBOLS:
+        response = requests.get(SINGLE_STOCK_URL.format(symb, DEFAULT_FROMDATE, DEFAULT_TODATE), headers=HEADERS)
+        data = response.json()
+        stocks[symb] = [ i['official_last'] for i in data ]
+
+    return stocks
 
 # Create your views here.
-def home(request):
-    defaultSymbols = ['SKEL','EIK','REITIR','SIMINN','GRND',
-                        'SJOVA','N1','TM','VIS','VOICE','EIM',
-                        'EIM','REGINN','HAGA','ORIGO','ICEAIR'
-                        'MARL']
+def home(request, input_symbol=None):
 
-    Symbol = "SKEL"
-    fromDate = "1.3.2017"
-    toDate = "13.3.2018"
+    if input_symbol:
+        Symbol = input_symbol
+    else:
+        Symbol = "SKEL"
 
-    url = str.format("https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}",
-    Symbol,fromDate,toDate)
+    url = SINGLE_STOCK_URL.format(Symbol, DEFAULT_FROMDATE, DEFAULT_TODATE)
     url2 = 'http://apis.is/currency/m5'
-    headers = {'Accept': 'text/json',
-    'Authorization': 'GUSER-a241345d-0604-47ce-8c08-791220191763'}
 
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=HEADERS)
     response2 = requests.get(url2)
     data = response.json()
     data2 = response2.json()
 
+
     return render(request, 'base.html', {
+        'inputdata' : str(Symbol),
         # Respone for livemarketdata.com API
-        'allData': data,
         'tradingDate': [i['trading_date'] for i in data],
         'officialLast': [i['official_last'] for i in data],
         # Respone for currency API
@@ -34,23 +54,41 @@ def home(request):
         'valueCurr': [i['value'] for i in data2['results']],
     })
 
-def market(request):
-    url = 'https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol=HAGA&fromdate=1.3.2018&todate=13.3.2018'
-    url2 = 'http://apis.is/currency/m5'
-    headers = {'Accept': 'text/json',
-    'Authorization': 'GUSER-a241345d-0604-47ce-8c08-791220191763'}
+def market(request, input_symbol=""):
+    if input_symbol:
+        Symbol = input_symbol
+    else:
+        Symbol = "SKEL"
 
-    response = requests.get(url, headers=headers)
-    response2 = requests.get(url2)
+    r_f = 0.0002
+    r_c = np.linspace(0.0001,0.005,num=40)
+
+    url = SINGLE_STOCK_URL.format(Symbol, DEFAULT_FROMDATE, DEFAULT_TODATE)
+    response = requests.get(url, headers=HEADERS)
     data = response.json()
-    data2 = response2.json()
+
+    stockDf = getStocks();
+    #priceData = pd.DataFrame.from_dict(stockDf)
+    #priceData = pd.DataFrame(stockDf, columns = ['Eimskip', ]})
+    #dailyReturns = logReturns(priceData)
+    #expReturns, sigma, corr, C = dataInfo(dailyReturns)
+    #min_w, ERP, minSigma = minRiskPort(expReturns, sigma, C)
+    #w_mp, r_mp, sigma_mp = marketPort(expReturns, r_f, C)
+    #reqReturnsW, ER, reqSigma = requiredReturns(expReturns, C, r_c)
+
+    #R = expReturns.tolist()
+    #stdDev = sigma.tolist()
+    #ERP = ERP.tolist()
+    #minStdDev = minSigma.tolist()
+    #rMP = r_mp.tolist()
+    #sigmaMP = sigma_mp.tolist()
+    #reqER = ER.tolist()
+    #reqStdDev = reqSigma.tolist()
 
     return render(request, 'market.html', {
         # Respone for livemarketdata.com API
         'officialLast': [i['official_last'] for i in data],
-        # Respone for currency API
-        'shortNames': [i['shortName' ] for i in data2['results']],
-        'valueCurr': [i['value' ] for i in data2['results']],
+        'testData' : stockDf,
     })
 
 def about(request):

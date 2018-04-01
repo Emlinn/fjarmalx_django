@@ -20,7 +20,7 @@
 
   <body>
     <nav class="navbar navbar-dark sticky-top  flex-md-nowrap p-0">
-      <a class="navbar-brand col-sm-3 col-md-1 mr-0" href="#">Fjármál X</a>
+      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Fjármál X</a>
       <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
           <a class="nav-link" href="/admin">Admin</a>
@@ -31,8 +31,8 @@
     <div class="container-fluid">
       <div class="row">
         <!-- NAVIGATION -->
-        <nav class="col-md-1 d-none d-md-block sidebar">
-          <div class="sidebar-sticky" id="sidebarOverwrite">
+        <nav class="col-md-2 d-none d-md-block sidebar">
+          <div class="sidebar-sticky">
             <ul class="nav flex-column">
               <li class="nav-item">
                 <a class="nav-link active" href="/">
@@ -41,7 +41,7 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/marketport">
+                <a class="nav-link" href="/marketport/">
                   <span data-feather="activity"></span>
                   Portfolio
                 </a>
@@ -59,7 +59,7 @@
                 </a>
               </li>
             <li class="nav-item">
-              <a class="nav-link" href="/about">
+              <a class="nav-link" href="/about/">
                 <span data-feather="github"></span>
                 About us
               </a>
@@ -75,7 +75,7 @@
         </nav>
 
         <!-- CONTAINER DIV -->
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-11 pt-3 px-4" id="maindiv">
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4" id="maindiv">
           <!-- UPPER TOOLBAR -->
           <div class="col-md-9 ml-sm-auto col-lg-12" id="divtest">
             <div class="container-fluid">
@@ -125,129 +125,64 @@
           <!-- RADIO BUTTONS -->
           <div class="container-fluid">
             <div class="row">
+              <div class="col-sm-8" id="colstyle">
+                <canvas class="my-2" id="myChart" ></canvas>
+              </div>
                 <div class="col-sm-4" id="colstyle">
                     <div class="RadioBtnsWrap" id="scrollable">
-                      <input type="radio" name="radio1" checked id="radio1" class="Radio" />
+                      <input type="radio" name="radio1" id="radio1" class="Radio" onclick="document.location='/SKEL'"/>
                       <label for="radio1">Skeljungur hf. (SKEL)</label>
 
-                      <input type="radio" name="radio1" id="radio2" class="Radio" />
+                      <input type="radio" name="radio1" id="radio2" class="Radio" onclick="document.location='/EIK'" />
                       <label  for="radio2">Eik fasteignafélag (EIK)</label>
 
-                      <input type="radio" name="radio1" id="radio3" class="Radio" />
+                      <input type="radio" name="radio1" id="radio3" class="Radio" onclick="document.location='/REITIR'"/>
                       <label  for="radio3">Reitir fasteignafélag (REITIR)</label>
 
-                      <input type="radio" name="radio1" id="radio4" class="Radio" />
+                      <input type="radio" name="radio1" id="radio4" class="Radio" onclick="document.location='/SIMINN'"/>
                       <label  for="radio4">Síminn (SIMINN)</label>
 
-                      <input type="radio" name="radio1" id="radio5" class="Radio" />
+                      <input type="radio" name="radio1" id="radio5" class="Radio" onclick="document.location='/GRND'"/>
                       <label  for="radio5">HB Grandi (GRND)</label>
 
-                      <input type="radio" name="radio1" id="radio6" class="Radio" />
+                      <input type="radio" name="radio1" id="radio6" class="Radio" onclick="document.location='/SJOVA'"/>
                       <label  for="radio6">Sjóvá-Almennar tryggingar (SJOVA)</label>
 
-                      <input type="radio" name="radio1" id="radio7" class="Radio" />
+                      <input type="radio" name="radio1" id="radio7" class="Radio" onclick="document.location='/N1'"/>
                       <label  for="radio7">N1 (N1)</label>
 
-                      <input type="radio" name="radio1" id="radio8" class="Radio" />
+                      <input type="radio" name="radio1" id="radio8" class="Radio" onclick="document.location='/TM'"/>
                       <label  for="radio8">Tryggingamiðstöðin (TM)</label>
 
-                      <input type="radio" name="radio1" id="radio9" class="Radio" />
+                      <input type="radio" name="radio1" id="radio9" class="Radio" onclick="document.location='/VIS'"/>
                       <label  for="radio9">Vátryggingafélag Íslands (VIS)</label>
 
-                      <input type="radio" name="radio1" id="radio10" class="Radio" />
+                      <input type="radio" name="radio1" id="radio10" class="Radio" onclick="document.location='/VOICE'"/>
                       <label  for="radio10">Fjarskipti (VOICE)</label>
 
-                      <input type="radio" name="radio1" id="radio11" class="Radio" />
+                      <input type="radio" name="radio1" id="radio11" class="Radio" onclick="document.location='/EIM'"/>
                       <label  for="radio11">Eimskipafélag Íslands (EIM)</label>
 
-                      <input type="radio" name="radio1" id="radio12" class="Radio" />
+                      <input type="radio" name="radio1" id="radio12" class="Radio" onclick="document.location='/REGINN'"/>
                       <label  for="radio12">Reginn (REGINN)</label>
 
-                      <input type="radio" name="radio1" id="radio13" class="Radio" />
+                      <input type="radio" name="radio1" id="radio13" class="Radio" onclick="document.location='/HAGA'"/>
                       <label  for="radio13">Hagar (HAGA)</label>
 
-                      <input type="radio" name="radio1" id="radio14" class="Radio" />
+                      <input type="radio" name="radio1" id="radio14" class="Radio" onclick="document.location='/ORIGO'"/>
                       <label  for="radio14">Nýherji (ORIGO)</label>
 
-                      <input type="radio" name="radio1" id="radio15" class="Radio" />
+                      <input type="radio" name="radio1" id="radio15" class="Radio" onclick="document.location='/ICEAIR'"/>
                       <label  for="radio15">Icelandair Group (ICEAIR)</label>
 
-                      <input type="radio" name="radio1" id="radio16" class="Radio" />
+                      <input type="radio" name="radio1" id="radio16" class="Radio" onclick="document.location='/MARL'"/>
                       <label  for="radio16">Marel (MARL)</label>
 
                     </div>
                 </div>
-                <div class="col-sm-8" id="colstyle">
-                  <canvas class="my-4" id="myChart" width="900" height="380"></canvas>
-                </div>
+
               </div>
             </div>
-
-          <!-- TABLE 1 -->
-          <h2>OMXI8 Prices (Today)</h2>
-          <div class="table-responsive">
-            <table class="table table-striped table-sm">
-              <thead>
-                <tr>
-                  <th>Symbol</th>
-                  <th>Price</th>
-                  <th>Change</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>{{ shortNames.0}}</td>
-                  <td>{{ valueCurr.0 }}</td>
-                  <td>%</td>
-                </tr>
-                <tr>
-                  <td>{{ shortNames.1 }}</td>
-                  <td>{{ valueCurr.1 }}</td>
-                  <td>%</td>
-                </tr>
-                <tr>
-                  <td>{{ shortNames.2 }}</td>
-                  <td>{{ valueCurr.2 }}</td>
-                  <td>%</td>
-                </tr>
-                <tr>
-                  <td>{{ shortNames.3 }}</td>
-                  <td>{{ valueCurr.3 }}</td>
-                  <td>%</td>
-                </tr>
-                <tr>
-                  <td>{{ shortNames.4 }}</td>
-                  <td>{{ valueCurr.4 }}</td>
-                  <td>%</td>
-                </tr>
-                <tr>
-                  <td>{{ shortNames.5 }}</td>
-                  <td>{{ valueCurr.5 }}</td>
-                  <td>%</td>
-                </tr>
-                <tr>
-                  <td>{{ shortNames.6 }}</td>
-                  <td>{{ valueCurr.6 }}</td>
-                  <td>%</td>
-                </tr>
-                <tr>
-                  <td>{{ shortNames.7 }}</td>
-                  <td>{{ valueCurr.7 }}</td>
-                  <td>%</td>
-                </tr>
-                <tr>
-                  <td>{{ shortNames.8 }}</td>
-                  <td>{{ valueCurr.8 }}</td>
-                  <td>%</td>
-                </tr>
-                <tr>
-                  <td>{{ shortNames.9 }}</td>
-                  <td>{{ valueCurr.9 }}</td>
-                  <td>%</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
 
           <!-- TABLE 2 -->
           <h2>Currency</h2>
@@ -351,8 +286,16 @@
           }]
         },
         options: {
+          title: {
+            display: true,
+            text: "{{ inputdata }}",
+          },
           scales: {
             yAxes: [{
+              display : false,
+              gridLines : {
+                    display : true
+                },
               ticks: {
                 beginAtZero: false
               }
