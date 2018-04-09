@@ -103,7 +103,6 @@
             <div class="row">
                 <div class="col-sm-12" id="colstyle">
                   <canvas class="my-4" id="myChart" width="900" height="380"></canvas>
-                  <p>{{ testData }}</p>
                 </div>
               </div>
             </div>
@@ -126,8 +125,85 @@
     </script>
 
     <!-- Graphs -->
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
     <script>
+
+    var R = {{ R }};
+    var sigma = {{ sigma }};
+    var ERP = {{ ERP }}
+    var minSigma = {{ minStdDev }}
+    var marketReturn = {{ rMP }}
+    var marketSigma = {{ sigmaMP }}
+    var reqReturn = {{ reqER }}
+    var reqSigma = {{ reqStdDev }}
+
+    console.log(R)
+
+
+    var ctx = document.getElementById("myChart").getContext('2d');
+    var myChart = new Chart(ctx, {
+      type: 'bubble',
+      data: {
+        labels: "Risk-Return",
+        datasets:[{
+          label: 'Stocks',
+          data: makeScatter(),
+          backgroundColor: 'rgba(52, 152, 219,0.2)',
+          borderColor: 'rgba(52, 152, 219,1.0)'
+        },{
+          label: 'Min. Var. Portfolio',
+          data: [{
+            x: minSigma,
+            y: ERP,
+            r: 5
+          }],
+          backgroundColor: 'rgba(243, 156, 18,0.2)',
+          borderColor: 'rgba(243, 156, 18,1.0)',
+        },{
+          label: 'Market Portfolio',
+          data: [{
+            x: marketSigma,
+            y: marketReturn[0],
+            r: 5
+          }],
+          backgroundColor: 'rgba(193,46,12,0.2)',
+          borderColor: 'rgba(193,46,12,1)',
+        },{
+          label: 'Efficient Frontier',
+          data: reqScatter(),
+          backgroundColor: 'rgba(46, 204, 113,0.2)',
+          borderColor: 'rgba(46, 204, 113,1.0)',
+        }]
+      }
+    }); 
+
+    function makeScatter(){
+      let stockReturns = R;
+      let stockVol = sigma;
+      let riskReturn  = [];
+
+      riskReturn = stockVol.map(function(item, i){
+        return {x: item, y: stockReturns[i], r:5}
+      });
+
+      return riskReturn
+    }
+
+    function reqScatter(){
+      let reqR = reqReturn[0];
+      let reqVol = reqSigma;
+      let marketFront = [];
+
+      marketFront = reqVol.map(function(item, i){
+        return {x: item, y: reqR[i], r:2}
+      });
+
+      return marketFront;
+    }
+
+
+    /*
       var ctx = document.getElementById("myChart");
       var myChart = new Chart(ctx, {
         type: 'line',
@@ -156,6 +232,7 @@
           }
         }
       });
+      */
     </script>
   </body>
 </html>

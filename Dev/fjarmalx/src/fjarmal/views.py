@@ -6,14 +6,14 @@ import pandas as pd
 import numpy as np
 
 DEFAULT_SYMBOLS = ['SKEL','EIK','REITIR','SIMINN','GRND',
-                    'SJOVA','N1','TM','VIS','VOICE','EIM',
+                    'SJOVA','N1','TM','VIS','EIM',
                     'EIM','REGINN','HAGA','ORIGO','ICEAIR',
                     'MARL']
-DEFAULT_FROMDATE = "1.3.2017"
-DEFAULT_TODATE = "13.3.2018"
+DEFAULT_FROMDATE = "1.1.2017"
+DEFAULT_TODATE = "1.3.2018"
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-a9f2e5e6-197a-45a0-82ab-e6e32adfc73d'
+    'Authorization': 'GUSER-19ce904c-ebed-44cf-906b-20a80517ef93'
     }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -61,35 +61,55 @@ def market(request, input_symbol=""):
         Symbol = "SKEL"
 
     r_f = 0.0002
-    r_c = np.linspace(0.0001,0.005,num=40)
+    r_c = np.linspace(0.0001,0.016,num=40)
 
     url = SINGLE_STOCK_URL.format(Symbol, DEFAULT_FROMDATE, DEFAULT_TODATE)
     response = requests.get(url, headers=HEADERS)
     data = response.json()
 
+    #stockDf is a dictionary
     stockDf = getStocks();
-    #priceData = pd.DataFrame.from_dict(stockDf)
-    #priceData = pd.DataFrame(stockDf, columns = ['Eimskip', ]})
-    #dailyReturns = logReturns(priceData)
-    #expReturns, sigma, corr, C = dataInfo(dailyReturns)
-    #min_w, ERP, minSigma = minRiskPort(expReturns, sigma, C)
-    #w_mp, r_mp, sigma_mp = marketPort(expReturns, r_f, C)
-    #reqReturnsW, ER, reqSigma = requiredReturns(expReturns, C, r_c)
+    ticker = stockDf.keys()
 
-    #R = expReturns.tolist()
-    #stdDev = sigma.tolist()
-    #ERP = ERP.tolist()
-    #minStdDev = minSigma.tolist()
-    #rMP = r_mp.tolist()
-    #sigmaMP = sigma_mp.tolist()
-    #reqER = ER.tolist()
-    #reqStdDev = reqSigma.tolist()
+    #Convert dictionary to pandas dataframe
+    df = pd.DataFrame.from_dict(stockDf, orient = 'columns')
+    #df = df.transpose()
 
+    #Calculate neccessary data
+    dailyReturns = logReturns(df)
+    expReturns, sigma, corr, C = dataInfo(dailyReturns)
+    min_w, ERP, minSigma = minRiskPort(expReturns, sigma, C)
+    w_mp, r_mp, sigma_mp = marketPort(expReturns, r_f, C)
+    reqReturnsW, ER, reqSigma = requiredReturns(expReturns, C, r_c)
+
+    #Convert to list 
+    R = expReturns.tolist()
+    stdDev = sigma.tolist()
+    ERP = ERP.tolist()
+    minStdDev = minSigma.tolist()
+    rMP = r_mp.tolist()
+    sigmaMP = sigma_mp.tolist()
+    reqER = ER.tolist()
+    reqStdDev = reqSigma.tolist()
+    
     return render(request, 'market.html', {
         # Respone for livemarketdata.com API
         'officialLast': [i['official_last'] for i in data],
         'testData' : stockDf,
+        'stockTicker' : ticker,
+        'len' : len(stockDf['REITIR']),
+        'R' : R,
+        'sigma' : stdDev,
+        'ERP' : ERP,
+        'minStdDev' : minStdDev,
+        'rMP' : rMP,
+        'sigmaMP' : sigmaMP,
+        'reqER' : reqER,
+        'reqStdDev' : reqStdDev
     })
 
 def about(request):
     return render(request, 'about.html')
+
+def about(request):
+    return render(request, 'data.html')
