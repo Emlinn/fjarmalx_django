@@ -101,8 +101,11 @@
 
           <div class="container-fluid">
             <div class="row">
-                <div class="col-sm-12" id="colstyle">
-                  <canvas class="my-4" id="myChart" width="900" height="380"></canvas>
+                <div class="col-sm-9" id="colstyle">
+                  <canvas class="my-5" id="myChart" width="900" height="380"></canvas>
+                </div>
+                <div class="col-sm-2">
+                  Hallo
                 </div>
               </div>
             </div>
@@ -156,7 +159,7 @@
           data: [{
             x: minSigma,
             y: ERP,
-            r: 5
+            r: 5,
           }],
           backgroundColor: 'rgba(243, 156, 18,0.2)',
           borderColor: 'rgba(243, 156, 18,1.0)',
@@ -170,13 +173,15 @@
           backgroundColor: 'rgba(193,46,12,0.2)',
           borderColor: 'rgba(193,46,12,1)',
         },{
+          type: 'line',
           label: 'Efficient Frontier',
           data: reqScatter(),
           backgroundColor: 'rgba(46, 204, 113,0.2)',
           borderColor: 'rgba(46, 204, 113,1.0)',
+          fill: false,
         }]
       }
-    }); 
+    });
 
     function makeScatter(){
       let stockReturns = R;

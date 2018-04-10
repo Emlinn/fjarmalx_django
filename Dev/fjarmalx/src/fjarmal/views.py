@@ -13,7 +13,7 @@ DEFAULT_FROMDATE = "1.1.2017"
 DEFAULT_TODATE = "1.3.2018"
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-19ce904c-ebed-44cf-906b-20a80517ef93'
+    'Authorization': 'GUSER-aa05639c-6e7f-4401-93a4-2d68c9466389'
     }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -82,7 +82,7 @@ def market(request, input_symbol=""):
     w_mp, r_mp, sigma_mp = marketPort(expReturns, r_f, C)
     reqReturnsW, ER, reqSigma = requiredReturns(expReturns, C, r_c)
 
-    #Convert to list 
+    #Convert to list
     R = expReturns.tolist()
     stdDev = sigma.tolist()
     ERP = ERP.tolist()
@@ -91,7 +91,7 @@ def market(request, input_symbol=""):
     sigmaMP = sigma_mp.tolist()
     reqER = ER.tolist()
     reqStdDev = reqSigma.tolist()
-    
+
     return render(request, 'market.html', {
         # Respone for livemarketdata.com API
         'officialLast': [i['official_last'] for i in data],
