@@ -13,7 +13,7 @@ DEFAULT_FROMDATE = "1.1.2017"
 DEFAULT_TODATE = "1.3.2018"
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-aa05639c-6e7f-4401-93a4-2d68c9466389'
+    'Authorization': 'GUSER-c9a77275-9c6e-436b-bb06-bf3070478443'
     }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -60,8 +60,11 @@ def market(request, input_symbol=""):
     else:
         Symbol = "SKEL"
 
-    r_f = 0.0002
-    r_c = np.linspace(0.0001,0.016,num=40)
+    V = 1000000
+    dt = 1
+
+    r_f = 0.000005
+    r_c = np.linspace(0.0001,0.01,num=40)
 
     url = SINGLE_STOCK_URL.format(Symbol, DEFAULT_FROMDATE, DEFAULT_TODATE)
     response = requests.get(url, headers=HEADERS)
@@ -73,7 +76,7 @@ def market(request, input_symbol=""):
 
     #Convert dictionary to pandas dataframe
     df = pd.DataFrame.from_dict(stockDf, orient = 'columns')
-    #df = df.transpose()
+
 
     #Calculate neccessary data
     dailyReturns = logReturns(df)
@@ -81,8 +84,11 @@ def market(request, input_symbol=""):
     min_w, ERP, minSigma = minRiskPort(expReturns, sigma, C)
     w_mp, r_mp, sigma_mp = marketPort(expReturns, r_f, C)
     reqReturnsW, ER, reqSigma = requiredReturns(expReturns, C, r_c)
+    adjStd, capitalMarketLine = CML(sigma, r_mp, r_f, sigma_mp)
+    VaR = ValueAtRisk(0.95, C, min_w, V, dt)
 
     #Convert to list
+    #stockTick = ticker.tolist()
     R = expReturns.tolist()
     stdDev = sigma.tolist()
     ERP = ERP.tolist()
@@ -91,6 +97,9 @@ def market(request, input_symbol=""):
     sigmaMP = sigma_mp.tolist()
     reqER = ER.tolist()
     reqStdDev = reqSigma.tolist()
+    capMarketLine = capitalMarketLine.tolist()
+    cmlStd = adjStd.tolist()
+    VaR_list = VaR.tolist()
 
     return render(request, 'market.html', {
         # Respone for livemarketdata.com API
@@ -105,7 +114,10 @@ def market(request, input_symbol=""):
         'rMP' : rMP,
         'sigmaMP' : sigmaMP,
         'reqER' : reqER,
-        'reqStdDev' : reqStdDev
+        'reqStdDev' : reqStdDev,
+        'CML' : capMarketLine,
+        'adjStd' : cmlStd,
+        'VaR' : VaR_list
     })
 
 def about(request):

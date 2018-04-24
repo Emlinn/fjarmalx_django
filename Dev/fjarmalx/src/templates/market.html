@@ -105,7 +105,9 @@
                   <canvas class="my-5" id="myChart" width="900" height="380"></canvas>
                 </div>
                 <div class="col-sm-2">
-                  Hallo
+                  <p>{{ ERP }}</p>
+                  <p>{{ stockTicker }}</p>
+                  <p>{{ CML }}</p>
                 </div>
               </div>
             </div>
@@ -140,6 +142,8 @@
     var marketSigma = {{ sigmaMP }}
     var reqReturn = {{ reqER }}
     var reqSigma = {{ reqStdDev }}
+    var adjSigma = {{ adjStd }}
+    var capitalMarketLine = {{ CML }}
 
     console.log(R)
 
@@ -179,7 +183,21 @@
           backgroundColor: 'rgba(46, 204, 113,0.2)',
           borderColor: 'rgba(46, 204, 113,1.0)',
           fill: false,
+        },{
+          type: 'line',
+          label: 'CML',
+          data: CML(),
+          backgroundColor: 'rgba(211, 84, 0,0.2)',
+          borderColor: 'rgba(211, 84, 0,1.0)',
+          fill: false,
         }]
+      },
+      options: {
+        elements: {
+          point: {
+            radius: 0
+          }
+        }
       }
     });
 
@@ -201,10 +219,23 @@
       let marketFront = [];
 
       marketFront = reqVol.map(function(item, i){
-        return {x: item, y: reqR[i], r:2}
+        return {x: item, y: reqR[i], r:0} 
       });
 
       return marketFront;
+    }
+
+    function CML(){
+      let cmlReturn = capitalMarketLine[0];
+      let cmlStd = adjSigma;
+      let capMarkLine = [];
+
+      capMarkLine = cmlStd.map(function(item, i){
+         return {x: item, y: cmlReturn[i], r: 2 }
+      })
+
+      return capMarkLine;
+
     }
 
 
