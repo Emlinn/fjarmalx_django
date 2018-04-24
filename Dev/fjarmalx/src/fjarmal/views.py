@@ -13,7 +13,7 @@ DEFAULT_FROMDATE = "1.1.2017"
 DEFAULT_TODATE = "1.3.2018"
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-c9a77275-9c6e-436b-bb06-bf3070478443'
+    'Authorization': 'GUSER-4ba8e1b2-7767-450c-951c-1d19938c0011'
     }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -120,8 +120,8 @@ def market(request, input_symbol=""):
         'VaR' : VaR_list
     })
 
-def about(request):
-    return render(request, 'about.html')
+# def about(request):
+#     return render(request, 'about.html')
 
 def about(request):
     return render(request, 'data.html')
