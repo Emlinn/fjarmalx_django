@@ -37,7 +37,7 @@ def marketPort(expReturns, r_f, C):
 	e = np.ones(shape = (len(expReturns),1))
 	invC = np.linalg.inv(C)
 
-	w_mp = (invC @ (r - (r_f * e)))/(e.T @ invC @ (r - r_f * e));
+	w_mp = (invC @ (r - (r_f * e)))/(e.T @ invC @ (r - r_f * e))
 	sigma_mp = np.sqrt(w_mp.T @ C @ w_mp)
 	r_mp = r.T @ w_mp
 

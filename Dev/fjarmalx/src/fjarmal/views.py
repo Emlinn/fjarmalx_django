@@ -5,6 +5,8 @@ import requests
 import pandas as pd
 import numpy as np
 
+from .forms import RiskFreeRateForm
+
 DEFAULT_SYMBOLS = ['SKEL','EIK','REITIR','SIMINN','GRND',
                     'SJOVA','N1','TM','VIS','EIM',
                     'EIM','REGINN','HAGA','ORIGO','ICEAIR',
@@ -13,7 +15,7 @@ DEFAULT_FROMDATE = "1.1.2017"
 DEFAULT_TODATE = "1.3.2018"
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-feab5170-72b0-4244-adef-287e37aa370b'
+    'Authorization': 'GUSER-bef259a3-e6a8-4501-8dc3-9145a14fee07'
     }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -54,22 +56,24 @@ def home(request, input_symbol=None):
         'valueCurr': [i['value'] for i in data2['results']],
     })
 
-def market(request, input_symbol=""):
-    if input_symbol:
-        Symbol = input_symbol
-    else:
-        Symbol = "SKEL"
+def market(request):
+
+    # if request.Get.get():
+    #     r_f = risk_free_rate
+    # else:
+    #     r_f = 0.000005
+
+    import pdb; pdb.set_trace()
+
+    r_f = request.GET.get('rate', 0.000005)
+    r_f = float(r_f)
 
     V = 1000000
     dt = 1
 
     # Taka user input i thetta
-    r_f = 0.000005
+    #r_f = 0.000005
     r_c = np.linspace(0.0001,0.01,num=40)
-
-    url = SINGLE_STOCK_URL.format(Symbol, DEFAULT_FROMDATE, DEFAULT_TODATE)
-    response = requests.get(url, headers=HEADERS)
-    data = response.json()
 
     #stockDf is a dictionary
     stockDf = getStocks()
@@ -104,7 +108,7 @@ def market(request, input_symbol=""):
 
     return render(request, 'market.html', {
         # Respone for livemarketdata.com API
-        'officialLast': [i['official_last'] for i in data],
+        #'officialLast': [i['official_last'] for i in data],
         'testData' : stockDf,
         'stockTicker' : ticker,
         'len' : len(stockDf['REITIR']),
