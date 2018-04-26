@@ -13,7 +13,7 @@ DEFAULT_FROMDATE = "1.1.2017"
 DEFAULT_TODATE = "1.3.2018"
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-4ba8e1b2-7767-450c-951c-1d19938c0011'
+    'Authorization': 'GUSER-feab5170-72b0-4244-adef-287e37aa370b'
     }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -63,6 +63,7 @@ def market(request, input_symbol=""):
     V = 1000000
     dt = 1
 
+    # Taka user input i thetta
     r_f = 0.000005
     r_c = np.linspace(0.0001,0.01,num=40)
 
@@ -71,7 +72,7 @@ def market(request, input_symbol=""):
     data = response.json()
 
     #stockDf is a dictionary
-    stockDf = getStocks();
+    stockDf = getStocks()
     ticker = stockDf.keys()
 
     #Convert dictionary to pandas dataframe
