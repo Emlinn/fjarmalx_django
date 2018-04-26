@@ -11,9 +11,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home),
     path('marketport/', market),
-    #path('marketport/<slug:risk_free_rate>', market),
     path('about/', about),
     path('<slug:input_symbol>', home)
 ]
-
-#http://localhost/marketport?rate=0.001

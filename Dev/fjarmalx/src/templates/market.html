@@ -105,9 +105,14 @@
                   <canvas class="my-5" id="myChart" width="900" height="380"></canvas>
                 </div>
                 <div class="col-sm-2">
-                  <p>{{ ERP }}</p>
+                  <!-- <p>{{ ERP }}</p>
                   <p>{{ stockTicker }}</p>
-                  <p>{{ CML }}</p>
+                  <p>{{ CML }}</p> -->
+                  <form action="/marketport/" method="post">
+                    {% csrf_token %}
+                    {{ rateForm }}
+                    <input type="submit" value="Submit" />
+                </form>
                 </div>
               </div>
             </div>

@@ -1,9 +1,12 @@
 from django.shortcuts import render
+from django.http import HttpResponseRedirect
 from django.views.generic import View
 from fjarmal.calc import *
 import requests
 import pandas as pd
 import numpy as np
+import pdb
+from django.urls import reverse
 
 from .forms import RiskFreeRateForm
 
@@ -15,7 +18,7 @@ DEFAULT_FROMDATE = "1.1.2017"
 DEFAULT_TODATE = "1.3.2018"
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-bef259a3-e6a8-4501-8dc3-9145a14fee07'
+    'Authorization': 'GUSER-3ba6e3a3-6b6a-401f-808c-1abcd5edecca'
     }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -57,73 +60,82 @@ def home(request, input_symbol=None):
     })
 
 def market(request):
+    pdb.set_trace()
+    if request.method == 'POST':
+        pdb.set_trace()
+        form = RiskFreeRateForm(request.POST)
+        if form.is_valid:
+            #newRate = form.cleaned_data['rate']
+            #return HttpResponseRedirect('/marketport/?rate={0}'.format(newRate))
+            return HttpResponseRedirect('/marketport/?rate={0}'.format(request.POST.get('rate')))
+    else:
 
-    # if request.Get.get():
-    #     r_f = risk_free_rate
-    # else:
-    #     r_f = 0.000005
+        #RISK_FREE_RATE = 0.000005
 
-    import pdb; pdb.set_trace()
+        pdb.set_trace()
 
-    r_f = request.GET.get('rate', 0.000005)
-    r_f = float(r_f)
+        r_f = request.GET.get('rate', 0.000005)
+        r_f = float(r_f)
 
-    V = 1000000
-    dt = 1
+        V = 1000000
+        dt = 1
 
-    # Taka user input i thetta
-    #r_f = 0.000005
-    r_c = np.linspace(0.0001,0.01,num=40)
+        # Taka user input i thetta
+        #r_f = 0.000005
+        r_c = np.linspace(0.0001,0.01,num=40)
 
-    #stockDf is a dictionary
-    stockDf = getStocks()
-    ticker = stockDf.keys()
+        #stockDf is a dictionary
+        stockDf = getStocks()
+        ticker = stockDf.keys()
 
-    #Convert dictionary to pandas dataframe
-    df = pd.DataFrame.from_dict(stockDf, orient = 'columns')
+        #Convert dictionary to pandas dataframe
+        df = pd.DataFrame.from_dict(stockDf, orient = 'columns')
 
 
-    #Calculate neccessary data
-    dailyReturns = logReturns(df)
-    expReturns, sigma, corr, C = dataInfo(dailyReturns)
-    min_w, ERP, minSigma = minRiskPort(expReturns, sigma, C)
-    w_mp, r_mp, sigma_mp = marketPort(expReturns, r_f, C)
-    reqReturnsW, ER, reqSigma = requiredReturns(expReturns, C, r_c)
-    adjStd, capitalMarketLine = CML(sigma, r_mp, r_f, sigma_mp)
-    VaR = ValueAtRisk(0.95, C, min_w, V, dt)
+        #Calculate neccessary data
+        dailyReturns = logReturns(df)
+        expReturns, sigma, corr, C = dataInfo(dailyReturns)
+        min_w, ERP, minSigma = minRiskPort(expReturns, sigma, C)
+        w_mp, r_mp, sigma_mp = marketPort(expReturns, r_f, C)
+        reqReturnsW, ER, reqSigma = requiredReturns(expReturns, C, r_c)
+        adjStd, capitalMarketLine = CML(sigma, r_mp, r_f, sigma_mp)
+        VaR = ValueAtRisk(0.95, C, min_w, V, dt)
 
-    #Convert to list
-    #stockTick = ticker.tolist()
-    R = expReturns.tolist()
-    stdDev = sigma.tolist()
-    ERP = ERP.tolist()
-    minStdDev = minSigma.tolist()
-    rMP = r_mp.tolist()
-    sigmaMP = sigma_mp.tolist()
-    reqER = ER.tolist()
-    reqStdDev = reqSigma.tolist()
-    capMarketLine = capitalMarketLine.tolist()
-    cmlStd = adjStd.tolist()
-    VaR_list = VaR.tolist()
+        #Convert to list
+        #stockTick = ticker.tolist()
+        R = expReturns.tolist()
+        stdDev = sigma.tolist()
+        ERP = ERP.tolist()
+        minStdDev = minSigma.tolist()
+        rMP = r_mp.tolist()
+        sigmaMP = sigma_mp.tolist()
+        reqER = ER.tolist()
+        reqStdDev = reqSigma.tolist()
+        capMarketLine = capitalMarketLine.tolist()
+        cmlStd = adjStd.tolist()
+        VaR_list = VaR.tolist()
 
-    return render(request, 'market.html', {
-        # Respone for livemarketdata.com API
-        #'officialLast': [i['official_last'] for i in data],
-        'testData' : stockDf,
-        'stockTicker' : ticker,
-        'len' : len(stockDf['REITIR']),
-        'R' : R,
-        'sigma' : stdDev,
-        'ERP' : ERP,
-        'minStdDev' : minStdDev,
-        'rMP' : rMP,
-        'sigmaMP' : sigmaMP,
-        'reqER' : reqER,
-        'reqStdDev' : reqStdDev,
-        'CML' : capMarketLine,
-        'adjStd' : cmlStd,
-        'VaR' : VaR_list
-    })
+        form = RiskFreeRateForm()
+
+        return render(request, 'market.html', {
+            # Respone for livemarketdata.com API
+            #'officialLast': [i['official_last'] for i in data],
+            'testData' : stockDf,
+            'stockTicker' : ticker,
+            'len' : len(stockDf['REITIR']),
+            'R' : R,
+            'sigma' : stdDev,
+            'ERP' : ERP,
+            'minStdDev' : minStdDev,
+            'rMP' : rMP,
+            'sigmaMP' : sigmaMP,
+            'reqER' : reqER,
+            'reqStdDev' : reqStdDev,
+            'CML' : capMarketLine,
+            'adjStd' : cmlStd,
+            'VaR' : VaR_list,
+            'rateForm': form
+        })
 
 # def about(request):
 #     return render(request, 'about.html')
