@@ -67,10 +67,8 @@ def CML(std, r_mp, r_f, std_mp):
 def ValueAtRisk(conf, C, w, V, dt):
 	alpha = norm.ppf(1-conf);
 	std_p = np.sqrt(w.T @ C @ w)
-	VaR = alpha * std_p * V * np.sqrt(dt)	
+	VaR = alpha * std_p * V * np.sqrt(dt)
 
 	return VaR
 
 #def putOption()
-
-	

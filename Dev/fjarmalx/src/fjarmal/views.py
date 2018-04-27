@@ -16,9 +16,12 @@ DEFAULT_SYMBOLS = ['SKEL','EIK','REITIR','SIMINN','GRND',
                     'MARL']
 DEFAULT_FROMDATE = "1.1.2017"
 DEFAULT_TODATE = "1.3.2018"
+DEFAULT_FROMDATESTRAT = "1.1.2014"
+DEFAULT_TODATESTRAT = "1.1.2015"
+DEFAULT_LENGTH = 995
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-3ba6e3a3-6b6a-401f-808c-1abcd5edecca'
+    'Authorization': 'GUSER-276cccd6-5e34-49f5-b228-518fd735e829'
     }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -29,6 +32,23 @@ def getStocks():
         response = requests.get(SINGLE_STOCK_URL.format(symb, DEFAULT_FROMDATE, DEFAULT_TODATE), headers=HEADERS)
         data = response.json()
         stocks[symb] = [ i['official_last'] for i in data ]
+
+    return stocks
+
+def getStocksForStrat():
+    stocks = { key: [] for key in DEFAULT_SYMBOLS }
+
+    for symb in DEFAULT_SYMBOLS:
+        response = requests.get(SINGLE_STOCK_URL.format(symb, DEFAULT_FROMDATESTRAT, DEFAULT_TODATESTRAT), headers=HEADERS)
+
+        company_stocks = [ i['official_last'] for i in response.json() ]
+
+        pad_length = DEFAULT_LENGTH - len(company_stocks)
+        padding = []
+        if pad_length > 0:
+            padding += [0] * pad_length
+
+        stocks[symb] = padding + company_stocks
 
     return stocks
 
@@ -60,9 +80,7 @@ def home(request, input_symbol=None):
     })
 
 def market(request):
-    pdb.set_trace()
     if request.method == 'POST':
-        pdb.set_trace()
         form = RiskFreeRateForm(request.POST)
         if form.is_valid:
             #newRate = form.cleaned_data['rate']
@@ -70,11 +88,11 @@ def market(request):
             return HttpResponseRedirect('/marketport/?rate={0}'.format(request.POST.get('rate')))
     else:
 
-        #RISK_FREE_RATE = 0.000005
+        RISK_FREE_RATE = 0.000005
 
-        pdb.set_trace()
+        #pdb.set_trace() DEBUGGER
 
-        r_f = request.GET.get('rate', 0.000005)
+        r_f = request.GET.get('rate', RISK_FREE_RATE)
         r_f = float(r_f)
 
         V = 1000000
@@ -119,7 +137,6 @@ def market(request):
 
         return render(request, 'market.html', {
             # Respone for livemarketdata.com API
-            #'officialLast': [i['official_last'] for i in data],
             'testData' : stockDf,
             'stockTicker' : ticker,
             'len' : len(stockDf['REITIR']),
@@ -137,8 +154,23 @@ def market(request):
             'rateForm': form
         })
 
-# def about(request):
-#     return render(request, 'about.html')
+def strat(request):
+    if request.method == 'POST':
+        form = RiskFreeRateForm(request.POST)
+        if form.is_valid:
+            #newRate = form.cleaned_data['rate']
+            #return HttpResponseRedirect('/marketport/?rate={0}'.format(newRate))
+            return HttpResponseRedirect('/marketport/?rate={0}'.format(request.POST.get('rate')))
+    else:
+        test = getStocksForStrat()
+        return render(request, 'strat.html', {
+            # Respone for livemarketdata.com API
+            'testData' : len(test['HAGA']),
+            #'rateForm': form
+        })
 
 def about(request):
+     return render(request, 'about.html')
+
+def data(request):
     return render(request, 'data.html')
