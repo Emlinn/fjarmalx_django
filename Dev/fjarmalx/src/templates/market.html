@@ -77,25 +77,6 @@
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h1 class="h2">Market Portfolio</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
-              <div class="btn-group dropleft" id="bootstrap-overrides">
-                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <span data-feather="calendar"></span>
-                  Time
-                </button>
-                <div class="dropdown-menu">
-                  <!-- Dropdown menu links -->
-                  <a class="dropdown-item" href="#">Last week</a>
-                  <a class="dropdown-item" href="#">Last month</a>
-                  <a class="dropdown-item" href="#">Last year</a>
-                  <a class="dropdown-item" href="#">Last 5 years</a>
-                </div>
-              </div>
-              <div id=buttonOverwrite>
-              <button type="button" class="btn btn-outline-danger" type="submit" value="Submit">
-                <span data-feather="plus"></span>
-                Submit
-              </button>
-            </div>
             </div>
           </div>
 
@@ -105,9 +86,6 @@
                   <canvas class="my-5" id="myChart" width="900" height="380"></canvas>
                 </div>
                 <div class="col-sm-2" id="form_control">
-                  <!-- <p>{{ ERP }}</p>
-                  <p>{{ stockTicker }}</p>
-                  <p>{{ CML }}</p> -->
                   <form action="/marketport/" method="post">
                     {% csrf_token %}
                     {{ rateForm }}
@@ -150,8 +128,6 @@
     var adjSigma = {{ adjStd }}
     var capitalMarketLine = {{ CML }}
 
-    console.log(R)
-
 
     var ctx = document.getElementById("myChart").getContext('2d');
     var myChart = new Chart(ctx, {
@@ -191,7 +167,7 @@
         },{
           type: 'line',
           label: 'CML',
-          //data: CML(),
+          data: CML(),
           backgroundColor: 'rgba(211, 84, 0,0.2)',
           borderColor: 'rgba(211, 84, 0,1.0)',
           fill: false,
@@ -242,38 +218,6 @@
       return capMarkLine;
 
     }
-
-
-    /*
-      var ctx = document.getElementById("myChart");
-      var myChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: {{ officialLast }},
-          datasets: [{
-            data: {{ officialLast }},
-            lineTension: 0,
-            pointRadius: 0,
-            backgroundColor: 'transparent',
-            borderColor: '#dc3545',
-            borderWidth: 2,
-            pointBackgroundColor: '#007bff'
-          }]
-        },
-        options: {
-          scales: {
-            yAxes: [{
-              ticks: {
-                beginAtZero: false
-              }
-            }]
-          },
-          legend: {
-            display: false,
-          }
-        }
-      });
-      */
     </script>
   </body>
 </html>

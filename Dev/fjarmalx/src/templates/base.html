@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -50,7 +50,7 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="/strat/">
                   <span data-feather="bar-chart-2"></span>
                   Strategies
                 </a>
@@ -68,7 +68,7 @@
               </a>
             </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="/help/">
                   <span data-feather="help-circle"></span>
                   Help
                 </a>
@@ -92,8 +92,14 @@
                     <span class="inline l-h-1x">Stocks<br><small class="text-muted">are in First North</small></span>
                   </div>
                   <div class="col-sm-4" id="colstyle">
-                    <h1 class="_800 l-s-n-4x inline m-r-sm text-danger">31,000</h1>
-                    <span class="inline l-h-1x">Employees<br><small class="text-muted">From 16 countries</small></span>
+                    <h1 class="_800 l-s-n-4x inline m-r-sm text-danger">{{inputdata}}</h1>
+                    <span class="inline l-h-1x">Daily change<br><small class="text-muted">
+                      {% if dailyChange < 0 %}
+                      <p style="color:#dc3545;">{{ dailyChange }} % </p>
+                      {% else %}
+                      <p style="color:green;">{{ dailyChange }} % </p>
+                      {% endif %}
+                       </small></span>
                   </div>
                 </div>
               </div>
@@ -157,8 +163,8 @@
                       <input type="radio" name="radio1" id="radio9" class="Radio" onclick="document.location='/VIS'"/>
                       <label  for="radio9">Vátryggingafélag Íslands (VIS)</label>
 
-                      <input type="radio" name="radio1" id="radio10" class="Radio" onclick="document.location='/VOICE'"/>
-                      <label  for="radio10">Fjarskipti (VOICE)</label>
+                      <input type="radio" name="radio1" id="radio10" class="Radio" onclick="document.location='/SYN'"/>
+                      <label  for="radio10">Fjarskipti (SYN)</label>
 
                       <input type="radio" name="radio1" id="radio11" class="Radio" onclick="document.location='/EIM'"/>
                       <label  for="radio11">Eimskipafélag Íslands (EIM)</label>
@@ -239,6 +245,8 @@
               </tbody>
             </table>
           </div>
+          {{tradingDate}}
+          {{officialLast}}
           </div>
         </main>
       </div>

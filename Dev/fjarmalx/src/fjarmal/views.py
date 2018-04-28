@@ -6,22 +6,25 @@ import requests
 import pandas as pd
 import numpy as np
 import pdb
+from datetime import datetime
 from django.urls import reverse
 
 from .forms import RiskFreeRateForm
 
+NOW = datetime.now()
+
 DEFAULT_SYMBOLS = ['SKEL','EIK','REITIR','SIMINN','GRND',
-                    'SJOVA','N1','TM','VIS','EIM',
+                    'SJOVA','N1','TM','VIS','SYN','EIM',
                     'EIM','REGINN','HAGA','ORIGO','ICEAIR',
                     'MARL']
 DEFAULT_FROMDATE = "1.1.2017"
-DEFAULT_TODATE = "1.3.2018"
+DEFAULT_TODATE = NOW.strftime("%d.%m.%Y")
 DEFAULT_FROMDATESTRAT = "1.1.2014"
 DEFAULT_TODATESTRAT = "1.1.2015"
 DEFAULT_LENGTH = 995
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-276cccd6-5e34-49f5-b228-518fd735e829'
+    'Authorization': 'GUSER-89bd6333-d6f8-4009-9d79-118dd46a9edc'
     }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -68,15 +71,18 @@ def home(request, input_symbol=None):
     data = response.json()
     data2 = response2.json()
 
+    lastElement = [i['official_last'] for i in data][-1] - [i['official_last'] for i in data][-2]
+    percenteChange = (lastElement/[i['official_last'] for i in data][-2]*100)
 
     return render(request, 'base.html', {
         'inputdata' : str(Symbol),
         # Respone for livemarketdata.com API
-        'tradingDate': [i['trading_date'] for i in data],
+        'tradingDate' : [datetime.strptime(i['trading_date'], "%Y-%m-%dT%H:%M:%S").strftime("%d.%m.%Y") for i in data],
         'officialLast': [i['official_last'] for i in data],
         # Respone for currency API
         'shortNames': [i['shortName'] for i in data2['results']],
         'valueCurr': [i['value'] for i in data2['results']],
+        'dailyChange' : float(str(round(percenteChange, 2))),
     })
 
 def market(request):
