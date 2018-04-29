@@ -24,7 +24,7 @@ DEFAULT_TODATESTRAT = "1.1.2015"
 DEFAULT_LENGTH = 995
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-89bd6333-d6f8-4009-9d79-118dd46a9edc'
+    'Authorization': 'GUSER-be2b0c03-08e7-44de-b616-03340207b158'
     }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -94,19 +94,18 @@ def market(request):
             return HttpResponseRedirect('/marketport/?rate={0}'.format(request.POST.get('rate')))
     else:
 
-        RISK_FREE_RATE = 0.000005
+        RISK_FREE_RATE = 0.0002
 
         #pdb.set_trace() DEBUGGER
 
         r_f = request.GET.get('rate', RISK_FREE_RATE)
         r_f = float(r_f)
 
-        V = 1000000
-        dt = 1
+  
 
         # Taka user input i thetta
         #r_f = 0.000005
-        r_c = np.linspace(0.0001,0.01,num=40)
+        r_c = np.linspace(0.0005,0.008,num=50)
 
         #stockDf is a dictionary
         stockDf = getStocks()
@@ -122,41 +121,41 @@ def market(request):
         min_w, ERP, minSigma = minRiskPort(expReturns, sigma, C)
         w_mp, r_mp, sigma_mp = marketPort(expReturns, r_f, C)
         reqReturnsW, ER, reqSigma = requiredReturns(expReturns, C, r_c)
-        adjStd, capitalMarketLine = CML(sigma, r_mp, r_f, sigma_mp)
-        VaR = ValueAtRisk(0.95, C, min_w, V, dt)
+        adjStdDev, capitalMarketLine = CML(r_mp, r_f, sigma_mp)
+
+        #Constrained efficient frontier
+        restRet, restStdDev = quadOpt(expReturns, r_c, C)
+      
 
         #Convert to list
-        #stockTick = ticker.tolist()
         R = expReturns.tolist()
         stdDev = sigma.tolist()
         ERP = ERP.tolist()
         minStdDev = minSigma.tolist()
         rMP = r_mp.tolist()
-        sigmaMP = sigma_mp.tolist()
+        stdDevMP = sigma_mp.tolist()
         reqER = ER.tolist()
         reqStdDev = reqSigma.tolist()
         capMarketLine = capitalMarketLine.tolist()
-        cmlStd = adjStd.tolist()
-        VaR_list = VaR.tolist()
+        cmlStdDev = adjStdDev.tolist()
+      
 
         form = RiskFreeRateForm()
 
         return render(request, 'market.html', {
             # Respone for livemarketdata.com API
-            'testData' : stockDf,
-            'stockTicker' : ticker,
-            'len' : len(stockDf['REITIR']),
             'R' : R,
-            'sigma' : stdDev,
+            'stdDev' : stdDev,
             'ERP' : ERP,
             'minStdDev' : minStdDev,
             'rMP' : rMP,
-            'sigmaMP' : sigmaMP,
-            'reqER' : reqER,
+            'stdDevMP' : stdDevMP,
+            'reqRet' : reqER[0],
             'reqStdDev' : reqStdDev,
-            'CML' : capMarketLine,
-            'adjStd' : cmlStd,
-            'VaR' : VaR_list,
+            'CML' : capMarketLine[0],
+            'cmlStdDev' : cmlStdDev,
+            'restR' : restRet,
+            'restStdDev' : restStdDev,
             'rateForm': form
         })
 

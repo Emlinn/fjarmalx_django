@@ -118,15 +118,17 @@
     <script>
 
     var R = {{ R }};
-    var sigma = {{ sigma }};
+    var stdDev = {{ stdDev }};
     var ERP = {{ ERP }}
-    var minSigma = {{ minStdDev }}
-    var marketReturn = {{ rMP }}
-    var marketSigma = {{ sigmaMP }}
-    var reqReturn = {{ reqER }}
-    var reqSigma = {{ reqStdDev }}
-    var adjSigma = {{ adjStd }}
+    var minStdDev = {{ minStdDev }}
+    var rMP = {{ rMP }}
+    var stdDevMP = {{ stdDevMP }}
+    var reqRet = {{ reqRet }}
+    var reqStdDev = {{ reqStdDev }}
+    var cmlStdDev = {{ cmlStdDev }}
     var capitalMarketLine = {{ CML }}
+    var restR = {{ restR }}
+    var restStdDev = {{ restStdDev }}
 
 
     var ctx = document.getElementById("myChart").getContext('2d');
@@ -142,7 +144,7 @@
         },{
           label: 'Min. Var. Portfolio',
           data: [{
-            x: minSigma,
+            x: minStdDev,
             y: ERP,
             r: 5,
           }],
@@ -151,8 +153,8 @@
         },{
           label: 'Market Portfolio',
           data: [{
-            x: marketSigma,
-            y: marketReturn[0],
+            x: stdDevMP,
+            y: rMP,
             r: 5
           }],
           backgroundColor: 'rgba(193,46,12,0.2)',
@@ -163,6 +165,13 @@
           data: reqScatter(),
           backgroundColor: 'rgba(46, 204, 113,0.2)',
           borderColor: 'rgba(46, 204, 113,1.0)',
+          fill: false,
+        },{
+          type: 'line',
+          label: 'Efficient Frontier - No short selling',
+          data: restScatter(),
+          backgroundColor: 'rgba(255, 165, 2,0.2)',
+          borderColor: 'rgba(255, 165, 2,1.0)',
           fill: false,
         },{
           type: 'line',
@@ -184,7 +193,7 @@
 
     function makeScatter(){
       let stockReturns = R;
-      let stockVol = sigma;
+      let stockVol = stdDev;
       let riskReturn  = [];
 
       riskReturn = stockVol.map(function(item, i){
@@ -195,8 +204,8 @@
     }
 
     function reqScatter(){
-      let reqR = reqReturn[0];
-      let reqVol = reqSigma;
+      let reqR = reqRet;
+      let reqVol = reqStdDev;
       let marketFront = [];
 
       marketFront = reqVol.map(function(item, i){
@@ -207,8 +216,8 @@
     }
 
     function CML(){
-      let cmlReturn = capitalMarketLine[0];
-      let cmlStd = adjSigma;
+      let cmlReturn = capitalMarketLine;
+      let cmlStd = cmlStdDev;
       let capMarkLine = [];
 
       capMarkLine = cmlStd.map(function(item, i){
@@ -218,6 +227,22 @@
       return capMarkLine;
 
     }
+
+    function restScatter(){
+      let restRet = restR;
+      let restVol = restStdDev;
+      let restFront = [];
+
+      restFront = restVol.map(function(item, i){
+        return {x: item, y:restRet[i], r:2}
+      })
+
+      return restFront;
+      console.log(restRet)
+      
+
+    }
+
     </script>
   </body>
 </html>
