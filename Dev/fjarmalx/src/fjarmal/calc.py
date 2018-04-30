@@ -62,7 +62,7 @@ def requiredReturns(expReturns, C, r_c):
 	return (reqReturnsW, ER, reqSigma)
 
 def CML(r_mp, r_f, std_mp):
-	adjStd = np.linspace(0,0.04, num = 50)
+	adjStd = np.linspace(0.004,0.022, num = 10)
 	grad = (r_mp - r_f)/std_mp
 	cml = r_f + adjStd * grad;
 	return (adjStd, cml);

@@ -103,6 +103,7 @@
             <div class="row">
                 <div class="col-sm-9" id="colstyle">
                   {{ testData }}
+                  {{ df }}
                 </div>
                 <div class="col-sm-2" id="form_control">
                   <form action="/marketport/" method="post">
@@ -136,18 +137,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
     <script>
 
-    var R = {{ R }};
-    var sigma = {{ sigma }};
-    var ERP = {{ ERP }}
-    var minSigma = {{ minStdDev }}
-    var marketReturn = {{ rMP }}
-    var marketSigma = {{ sigmaMP }}
-    var reqReturn = {{ reqER }}
-    var reqSigma = {{ reqStdDev }}
-    var adjSigma = {{ adjStd }}
-    var capitalMarketLine = {{ CML }}
 
-    console.log(R)
+    var df = {{ df }}
+
+    console.log(df)
 
 
     var ctx = document.getElementById("myChart").getContext('2d');

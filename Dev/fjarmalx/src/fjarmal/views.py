@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.views.generic import View
 from fjarmal.calc import *
+from fjarmal.moment import *
 import requests
 import pandas as pd
 import numpy as np
@@ -13,18 +14,20 @@ from .forms import RiskFreeRateForm
 
 NOW = datetime.now()
 
-DEFAULT_SYMBOLS = ['SKEL','EIK','REITIR','SIMINN','GRND',
-                    'SJOVA','N1','TM','VIS','SYN','EIM',
-                    'EIM','REGINN','HAGA','ORIGO','ICEAIR',
-                    'MARL']
-DEFAULT_FROMDATE = "1.1.2017"
+#DEFAULT_SYMBOLS = ['SKEL','EIK','REITIR','SIMINN','GRND',
+#                    'SJOVA','N1','TM','VIS','SYN','EIM',
+#                    'EIM','REGINN','HAGA','ORIGO','ICEAIR',
+#                    'MARL']
+DEFAULT_SYMBOLS = ['SJOVA','N1','TM','VIS','EIM','REGINN','HAGA','ICEAIR','MARL']
+
+DEFAULT_FROMDATE = "1.1.2015"
 DEFAULT_TODATE = NOW.strftime("%d.%m.%Y")
 DEFAULT_FROMDATESTRAT = "1.1.2014"
 DEFAULT_TODATESTRAT = "1.1.2015"
 DEFAULT_LENGTH = 995
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-be2b0c03-08e7-44de-b616-03340207b158'
+    'Authorization': 'GUSER-8348616d-97f3-41ee-ad6d-c26f42f142d3'
     }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -94,29 +97,32 @@ def market(request):
             return HttpResponseRedirect('/marketport/?rate={0}'.format(request.POST.get('rate')))
     else:
 
-        RISK_FREE_RATE = 0.0002
-
-        #pdb.set_trace() DEBUGGER
-
-        r_f = request.GET.get('rate', RISK_FREE_RATE)
-        r_f = float(r_f)
-
-  
-
-        # Taka user input i thetta
-        #r_f = 0.000005
-        r_c = np.linspace(0.0005,0.008,num=50)
-
         #stockDf is a dictionary
         stockDf = getStocks()
         ticker = stockDf.keys()
+        stockTicker = list(ticker)
 
         #Convert dictionary to pandas dataframe
         df = pd.DataFrame.from_dict(stockDf, orient = 'columns')
 
+        #df = pd.read_csv('fjarmal/data.csv', encoding = 'latin-1')
+        priceData = df.iloc[0:300, 0:16]
+        noRows = df.shape;
+
+        RISK_FREE_RATE = 0.0002
+
+        #pdb.set_trace() DEBUGGER
+        #r_f = request.GET.get('rate', RISK_FREE_RATE)
+        #r_f = float(r_f)
+        r_f = 0.0002
+
+        # Taka user input i thetta
+        r_c = np.linspace(0.0006,0.006,num=15)
+
+    
 
         #Calculate neccessary data
-        dailyReturns = logReturns(df)
+        dailyReturns = logReturns(priceData)
         expReturns, sigma, corr, C = dataInfo(dailyReturns)
         min_w, ERP, minSigma = minRiskPort(expReturns, sigma, C)
         w_mp, r_mp, sigma_mp = marketPort(expReturns, r_f, C)
@@ -126,7 +132,6 @@ def market(request):
         #Constrained efficient frontier
         restRet, restStdDev = quadOpt(expReturns, r_c, C)
       
-
         #Convert to list
         R = expReturns.tolist()
         stdDev = sigma.tolist()
@@ -138,12 +143,12 @@ def market(request):
         reqStdDev = reqSigma.tolist()
         capMarketLine = capitalMarketLine.tolist()
         cmlStdDev = adjStdDev.tolist()
-      
 
         form = RiskFreeRateForm()
 
         return render(request, 'market.html', {
             # Respone for livemarketdata.com API
+            'stockTicker' : stockTicker,
             'R' : R,
             'stdDev' : stdDev,
             'ERP' : ERP,
@@ -167,10 +172,21 @@ def strat(request):
             #return HttpResponseRedirect('/marketport/?rate={0}'.format(newRate))
             return HttpResponseRedirect('/marketport/?rate={0}'.format(request.POST.get('rate')))
     else:
-        test = getStocksForStrat()
+        stockData = getStocksForStrat()
+        df = pd.DataFrame.from_dict(stockData, orient = 'columns')
+        priceData = df.iloc[1:20, 1:16]
+
+        dt = 2 
+        updateInterval = 50; #User input 
+        finalTime = 300
+        CAP = 1000000 #User input
+        comm = 0.025 #User input
+        rf = 0.0003; #User input
+
         return render(request, 'strat.html', {
             # Respone for livemarketdata.com API
-            'testData' : len(test['HAGA']),
+            'testData' : len(stockData['HAGA']),
+            'df' : priceData
             #'rateForm': form
         })
 
