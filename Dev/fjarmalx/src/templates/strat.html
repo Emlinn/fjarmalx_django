@@ -101,11 +101,11 @@
 
           <div class="container-fluid">
             <div class="row">
-                <div class="col-sm-9" id="colstyle">
-                  {{ testData }}
-                  {{ df }}
-                </div>
+                  <div class = "col-sm-8" id = "chartContainer" style="height: 300px; width: 100%;"></div>
+                  <div class = "col-sm-4" id = "barContainer" style="height: 300px; width: 100%;"></div>
+                  <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
                 <div class="col-sm-2" id="form_control">
+                  <button type = "button" class = "btn btn-danger" id = "stop">STOP SIMULATION</button>
                   <form action="/marketport/" method="post">
                     {% csrf_token %}
                     {{ rateForm }}
@@ -137,101 +137,135 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
     <script>
 
+      
+      var minVarRet = {{ minVarRet }}
+      var minVarCost = {{ minVarCost }}
+      var mpRet = {{ mpRet }}
+      var mpCost = {{ mpCost }}
+      var dt = {{ dt }}
+     
 
-    var df = {{ df }}
+      window.onload = function(){
+        //RETURN PLOT************************************************************************
+        var dataPoints1 = []; 
+        var dataPoints2 = []; 
+        var dataPoints3 = []; 
 
-    console.log(df)
-
-
-    var ctx = document.getElementById("myChart").getContext('2d');
-    var myChart = new Chart(ctx, {
-      type: 'bubble',
-      data: {
-        labels: "Risk-Return",
-        datasets:[{
-          label: 'Stocks',
-          data: makeScatter(),
-          backgroundColor: 'rgba(52, 152, 219,0.2)',
-          borderColor: 'rgba(52, 152, 219,1.0)'
-        },{
-          label: 'Min. Var. Portfolio',
+        var chart = new CanvasJS.Chart("chartContainer", {
+          title :{
+            text: "Strategy comparisson",
+            fontFamily: "tahoma",
+            fontSize: 15,
+            fontWeight: "normal"
+          },
+          axisY: {
+            includeZero: false
+          },
+          legend: {
+            verticalAlign: "top",
+            fontSize: 10
+          },    
           data: [{
-            x: minSigma,
-            y: ERP,
-            r: 5,
-          }],
-          backgroundColor: 'rgba(243, 156, 18,0.2)',
-          borderColor: 'rgba(243, 156, 18,1.0)',
-        },{
-          label: 'Market Portfolio',
-          data: [{
-            x: marketSigma,
-            y: marketReturn[0],
-            r: 5
-          }],
-          backgroundColor: 'rgba(193,46,12,0.2)',
-          borderColor: 'rgba(193,46,12,1)',
-        },{
-          type: 'line',
-          label: 'Efficient Frontier',
-          data: reqScatter(),
-          backgroundColor: 'rgba(46, 204, 113,0.2)',
-          borderColor: 'rgba(46, 204, 113,1.0)',
-          fill: false,
-        },{
-          type: 'line',
-          label: 'CML',
-          data: CML(),
-          backgroundColor: 'rgba(211, 84, 0,0.2)',
-          borderColor: 'rgba(211, 84, 0,1.0)',
-          fill: false,
-        }]
-      },
-      options: {
-        elements: {
-          point: {
-            radius: 0
+            type: "line",
+            showInLegend: true,
+            dataPoints: dataPoints1,
+            markerType: "none"
+          },{
+            type: "line",
+            showInLegend: true,
+            dataPoints: dataPoints2,
+            markerType: "none"
+          }]
+        });
+
+        var xVal = 0;
+        var yVal1 = 0;
+        var yVal2 = 0;
+        var yVal3 = 0;
+        var updateInterval = 1000;
+        var dataLength = 20; // number of dataPoints visible at any point
+
+        var updateChart = function (count) {
+
+          count = count || 1;
+
+          for (var j = 0; j < count; j++) {
+            yVal1 = minVarRet[xVal];
+            yVal2 = mpRet[xVal]
+
+            dataPoints1.push({
+              x: xVal * dt,
+              y: yVal1
+            });
+            dataPoints2.push({
+              x: xVal * dt,
+              y: yVal2
+            });
+            xVal++;
           }
-        }
+
+          if (dataPoints1.length > dataLength) {
+            dataPoints1.shift();
+            dataPoints2.shift();
+          }
+
+          chart.options.data[0].legendText = "Min. Var. Strat: " + yVal1.toFixed(6);
+          chart.options.data[1].legendText = "Market Port. Start: " + yVal2.toFixed(6);
+          chart.render();
+        };
+        //BAR CHART*****************************************************************************
+          var costData1;
+          var costData2;
+          var counter = dataLength; //Neccessary so the return plot and the bar plot align
+          var barChart = new CanvasJS.Chart("barContainer",{
+
+            title:{
+              text: "Accumulated Cost of Trading",
+              fontFamily: "tahoma",
+              fontSize: 15,
+              fontWeight: "normal"
+            },
+            axisY:{
+              title: "Total Cost",
+              suffix: "ISK"
+            },
+            data:[{
+              type: "column",
+              indexLabel: "{y}",
+              dataPoints:[
+                {label: "OMXI Index", y: costData1},
+                {label: "Min. Var. Port", y: costData2}
+              ]
+            }]
+
+          });
+
+          
+          function updateBarChart(){
+            var deltaY;
+            var dps = barChart.options.data[0].dataPoints;
+            for(var i = 0; i < 1; i++){
+              costData1 = minVarCost[counter];
+              costData2 = mpCost[counter];
+              dps[i] = {label: "Min. Var. Portf: ", y:costData1};
+              dps[i+1] = {label: "Market Portf: ", y:costData2};
+              counter = counter+1;
+            }
+
+            barChart.render();
+          };
+
+        //START SIMULATION**********************************************************************
+        updateChart(dataLength);
+        updateBarChart()
+        var interval = setInterval(function(){updateChart(); updateBarChart()}, updateInterval);
+
+        $('#stop').click(function(){
+          clearInterval(interval)
+        })
+
       }
-    });
 
-    function makeScatter(){
-      let stockReturns = R;
-      let stockVol = sigma;
-      let riskReturn  = [];
-
-      riskReturn = stockVol.map(function(item, i){
-        return {x: item, y: stockReturns[i], r:5}
-      });
-
-      return riskReturn
-    }
-
-    function reqScatter(){
-      let reqR = reqReturn[0];
-      let reqVol = reqSigma;
-      let marketFront = [];
-
-      marketFront = reqVol.map(function(item, i){
-        return {x: item, y: reqR[i], r:0}
-      });
-
-      return marketFront;
-    }
-
-    function CML(){
-      let cmlReturn = capitalMarketLine[0];
-      let cmlStd = adjSigma;
-      let capMarkLine = [];
-
-      capMarkLine = cmlStd.map(function(item, i){
-         return {x: item, y: cmlReturn[i], r: 2 }
-      })
-
-      return capMarkLine;
-
-    }
     </script>
   </body>
 </html>

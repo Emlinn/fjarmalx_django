@@ -9,7 +9,17 @@ import cvxopt as opt
 from cvxopt import matrix, solvers
 
 def logReturns(data):
-	dailyReturns = data.apply(lambda x: np.log(x) - np.log(x.shift(1)))
+
+	def numVerify(x,y):
+		if x.any() > 0:
+			dRet = np.log(x) - np.log(y)
+			return dRet
+		else:
+			return 0
+
+
+	#dailyReturns = data.apply(lambda x: np.log(x) - np.log(x.shift(1)))
+	dailyReturns = data.apply(lambda x: numVerify(x, x.shift(1)))
 	return dailyReturns
 
 def dataInfo(dailyReturns):

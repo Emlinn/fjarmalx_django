@@ -86,7 +86,7 @@ def indexPort(data, dt, updateInterval, finalTime, CAP, commission, rf):
 #Strategies - Hold the min. var port. 
 def minVarStrat(data, dt, updateInterval, finalTime, CAP, commission, rf):
 
-	w = np.array([0.0909, 0.0909, 0.0909, 0.0909, 0.0909, 0.0909, 0.0909, 0.0909, 0.0909, 0.0909, 0.0909])
+	w = np.array([0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11])
 	
 	incDt = dt;
 	update = 0;
@@ -99,7 +99,7 @@ def minVarStrat(data, dt, updateInterval, finalTime, CAP, commission, rf):
 	costOfTrading.append(totalCost)
 
 	for i in range(0,finalTime):
-		priceData = data.iloc[0:dt, 1:12]
+		priceData = data.iloc[0:dt, 0:9]
 		dailyReturns = logReturns(priceData)
 		expReturns, sigma, corr, C = dataInfo(dailyReturns)
 		portR, portStd = portData(w, expReturns, C)
@@ -124,8 +124,8 @@ def minVarStrat(data, dt, updateInterval, finalTime, CAP, commission, rf):
 
 def marketPortStrat(data, dt, updateInterval, finalTime, CAP, commission, rf):
 
-	w = np.array([0.0909, 0.0909, 0.0909, 0.0909, 0.0909, 0.0909, 0.0909, 0.0909, 0.0909, 0.0909, 0.0909])
-	
+	w = np.array([0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11])
+
 	incDt = dt;
 	update = 0;
 	finalTime = int(finalTime/dt)
@@ -137,7 +137,7 @@ def marketPortStrat(data, dt, updateInterval, finalTime, CAP, commission, rf):
 	costOfTrading.append(totalCost)
 
 	for i in range(0,finalTime):
-		priceData = data.iloc[0:dt, 1:12]
+		priceData = data.iloc[0:dt, 0:9]
 		dailyReturns = logReturns(priceData)
 		expReturns, sigma, corr, C = dataInfo(dailyReturns)
 		portR, portStd = portData(w, expReturns, C)

@@ -22,12 +22,12 @@ DEFAULT_SYMBOLS = ['SJOVA','N1','TM','VIS','EIM','REGINN','HAGA','ICEAIR','MARL'
 
 DEFAULT_FROMDATE = "1.1.2015"
 DEFAULT_TODATE = NOW.strftime("%d.%m.%Y")
-DEFAULT_FROMDATESTRAT = "1.1.2014"
-DEFAULT_TODATESTRAT = "1.1.2015"
+DEFAULT_FROMDATESTRAT = "1.1.2014" #1.1.2014
+DEFAULT_TODATESTRAT = "1.1.2015" #1.1.2015
 DEFAULT_LENGTH = 995
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-8348616d-97f3-41ee-ad6d-c26f42f142d3'
+    'Authorization': 'GUSER-ec5913fb-1c33-47fc-abc6-b09957f444a9'
     }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -172,22 +172,34 @@ def strat(request):
             #return HttpResponseRedirect('/marketport/?rate={0}'.format(newRate))
             return HttpResponseRedirect('/marketport/?rate={0}'.format(request.POST.get('rate')))
     else:
-        stockData = getStocksForStrat()
-        df = pd.DataFrame.from_dict(stockData, orient = 'columns')
-        priceData = df.iloc[1:20, 1:16]
+        #stockData = getStocksForStrat()
+        stockData = getStocks()
+        df = pd.DataFrame.from_dict(stockData, orient = 'columns') #Max. 830 rows and 9 columns for current selection
+        priceData = df.iloc[0:500, 0:9]
+      
 
         dt = 2 
         updateInterval = 50; #User input 
         finalTime = 300
         CAP = 1000000 #User input
         comm = 0.025 #User input
-        rf = 0.0003; #User input
+        rf = 0.0002; #User input
+
+        #Strategies Functions
+        minVarRet, minVarCost = minVarStrat(priceData, dt, updateInterval, finalTime, CAP, comm, rf)
+        mpRet, mpCost = marketPortStrat(priceData, dt, updateInterval, finalTime, CAP, comm, rf)
+
 
         return render(request, 'strat.html', {
             # Respone for livemarketdata.com API
-            'testData' : len(stockData['HAGA']),
-            'df' : priceData
-            #'rateForm': form
+            #'testData' : len(stockData['HAGA']),
+            #'rateForm': form,
+            'minVarRet' : minVarRet,
+            'minVarCost' : minVarCost,
+            'mpRet' : mpRet,
+            'mpCost' : mpCost,
+            "dt" : dt,
+
         })
 
 def about(request):
