@@ -11,7 +11,7 @@ from cvxopt import matrix, solvers
 def logReturns(data):
 
 	def numVerify(x,y):
-		if x.any() > 0:
+		if x.any() > 0 and y.any() > 0 :
 			dRet = np.log(x) - np.log(y)
 			return dRet
 		else:
@@ -19,14 +19,17 @@ def logReturns(data):
 
 
 	#dailyReturns = data.apply(lambda x: np.log(x) - np.log(x.shift(1)))
+	#yearlyReturns = dailyReturns.apply(lambda x: x*252);
 	dailyReturns = data.apply(lambda x: numVerify(x, x.shift(1)))
-	return dailyReturns
+	yearlyReturns = dailyReturns.apply(lambda x: x*252)
+	#dailyReturns = dailyReturns.fillna(0)
+	return (dailyReturns, yearlyReturns)
 
 def dataInfo(dailyReturns):
-	expReturns = dailyReturns.mean()
-	sigma = dailyReturns.std()
-	corr = dailyReturns.corr()
-	C = dailyReturns.cov()
+	expReturns = dailyReturns.apply(lambda s: s[np.isfinite(s)].dropna()).mean()
+	sigma = dailyReturns.apply(lambda s: s[np.isfinite(s)].dropna()).std()
+	corr = dailyReturns.apply(lambda s: s[np.isfinite(s)].dropna()).corr()
+	C = dailyReturns.apply(lambda s: s[np.isfinite(s)].dropna()).cov()
 
 	expReturns = expReturns.as_matrix()
 	sigma = sigma.as_matrix()

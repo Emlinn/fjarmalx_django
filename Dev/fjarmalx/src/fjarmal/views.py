@@ -5,6 +5,7 @@ from fjarmal.calc import *
 from fjarmal.moment import *
 import requests
 import pandas as pd
+from pandas import Series
 import numpy as np
 import pdb
 import json
@@ -16,17 +17,14 @@ from .forms import RiskFreeRateForm
 
 NOW = datetime.now()
 
-#DEFAULT_SYMBOLS = ['SKEL','EIK','REITIR','SIMINN','GRND',
-#                    'SJOVA','N1','TM','VIS','SYN','EIM',
-#                    'EIM','REGINN','HAGA','ORIGO','ICEAIR',
-#                    'MARL']
-DEFAULT_SYMBOLS = ['SJOVA','N1','TM','VIS','EIM','REGINN','HAGA','ICEAIR','MARL']
+DEFAULT_SYMBOLS = ['SKEL','EIK','REITIR','SIMINN','GRND','SJOVA','N1','TM','VIS','SYN','EIM','EIM','REGINN','HAGA','ORIGO','ICEAIR','MARL']
+#DEFAULT_SYMBOLS = ['SJOVA','N1','TM','VIS','EIM','REGINN','HAGA','ICEAIR','MARL']
 
 DEFAULT_FROMDATE = "1.1.2015"
 DEFAULT_TODATE = NOW.strftime("%d.%m.%Y")
 DEFAULT_FROMDATESTRAT = "1.1.2014" #1.1.2014
-DEFAULT_TODATESTRAT = "1.1.2015" #1.1.2015
-DEFAULT_LENGTH = 995
+DEFAULT_TODATESTRAT = "1.1.2018" #1.1.2015
+DEFAULT_LENGTH = 996 #995
 HEADERS = {
     'Accept': 'text/json',
     'Authorization': 'GUSER-05b92938-e538-49d5-a461-96346d3716b0'
@@ -100,7 +98,7 @@ def market(request):
     else:
 
         #stockDf is a dictionary
-        stockDf = getStocks()
+        stockDf = getStocksForStrat()
         ticker = stockDf.keys()
         stockTicker = list(ticker)
 
@@ -108,34 +106,33 @@ def market(request):
         df = pd.DataFrame.from_dict(stockDf, orient = 'columns')
 
         #df = pd.read_csv('fjarmal/data.csv', encoding = 'latin-1')
-        priceData = df.iloc[0:300, 0:16]
-        noRows = df.shape
+        priceData = df.iloc[0:996, 0:16]
 
         RISK_FREE_RATE = 0.0002
 
         #pdb.set_trace() DEBUGGER
         #r_f = request.GET.get('rate', RISK_FREE_RATE)
         #r_f = float(r_f)
-        r_f = 0.0002
+        r_f = 0.00001
 
         # Taka user input i thetta
-        r_c = np.linspace(0.0006,0.006,num=15)
+        r_c = np.linspace(0.0003,0.004,num=20)
 
     
 
         #Calculate neccessary data
-        dailyReturns = logReturns(priceData)
-        expReturns, sigma, corr, C = dataInfo(dailyReturns)
-        min_w, ERP, minSigma = minRiskPort(expReturns, sigma, C)
-        w_mp, r_mp, sigma_mp = marketPort(expReturns, r_f, C)
-        reqReturnsW, ER, reqSigma = requiredReturns(expReturns, C, r_c)
+        dailyRet, yearlyRet = logReturns(priceData)
+        expRet, sigma, corr, C = dataInfo(dailyRet)
+        min_w, ERP, minSigma = minRiskPort(expRet, sigma, C)
+        w_mp, r_mp, sigma_mp = marketPort(expRet, r_f, C)
+        reqReturnsW, ER, reqSigma = requiredReturns(expRet, C, r_c)
         adjStdDev, capitalMarketLine = CML(r_mp, r_f, sigma_mp)
 
         #Constrained efficient frontier
-        restRet, restStdDev = quadOpt(expReturns, r_c, C)
+        restRet, restStdDev = quadOpt(expRet, r_c, C)
       
         #Convert to list
-        R = expReturns.tolist()
+        R = expRet.tolist()
         stdDev = sigma.tolist()
         ERP = ERP.tolist()
         minStdDev = minSigma.tolist()
@@ -147,7 +144,7 @@ def market(request):
         cmlStdDev = adjStdDev.tolist()
 
         form = RiskFreeRateForm()
-
+ 
         return render(request, 'market.html', {
             # Respone for livemarketdata.com API
             'stockTicker' : stockTicker,
@@ -165,6 +162,7 @@ def market(request):
             'restStdDev' : restStdDev,
             'rateForm': form
         })
+        
 
 def strat(request):
     if request.method == 'POST':
@@ -175,33 +173,28 @@ def strat(request):
             return HttpResponseRedirect('/marketport/?rate={0}'.format(request.POST.get('rate')))
     else:
         #stockData = getStocksForStrat()
-        stockData = getStocks()
+        stockData = getStocksForStrat()
         df = pd.DataFrame.from_dict(stockData, orient = 'columns') #Max. 830 rows and 9 columns for current selection
-        priceData = df.iloc[0:500, 0:9]
+        priceData = df.iloc[600:900, 0:16]
       
 
-        dt = 2 
-        updateInterval = 50; #User input 
-        finalTime = 300
-        CAP = 1000000 #User input
+        dt = 5
+        updateInterval = 55; #User input 
+        initCAP = 1000000 #User input
         comm = 0.025 #User input
         rf = 0.0002; #User input
 
         #Strategies Functions
-        minVarRet, minVarCost = minVarStrat(priceData, dt, updateInterval, finalTime, CAP, comm, rf)
-        mpRet, mpCost = marketPortStrat(priceData, dt, updateInterval, finalTime, CAP, comm, rf)
-
+        stratW, stratRet, stratCAP, stratCAPwCost = momentumStrat(priceData, dt, updateInterval, initCAP, comm, rf) 
+        stratW = stratW.tolist()
+        
 
         return render(request, 'strat.html', {
-            # Respone for livemarketdata.com API
-            #'testData' : len(stockData['HAGA']),
-            #'rateForm': form,
-            'minVarRet' : minVarRet,
-            'minVarCost' : minVarCost,
-            'mpRet' : mpRet,
-            'mpCost' : mpCost,
-            "dt" : dt,
-
+            'dt' : dt,
+            'stratW' : stratW,
+            'stratRet' : stratRet,
+            'stratCAP' : stratCAP,
+            'stratCAPwCost' : stratCAPwCost
         })
 
 def about(request):

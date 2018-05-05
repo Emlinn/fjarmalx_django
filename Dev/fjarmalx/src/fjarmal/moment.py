@@ -12,14 +12,25 @@ def initWeights(expR):
 	w = w * indW
 	return w
 
+def dailyReturns(data):
+    numRow = data.shape[0]
+    numCol = data.shape[1]
+
+    dReturns = pd.DataFrame(0, index = range(data.shape[0]), columns=range(data.shape[1]))
+
+    for j in range(0, numCol):
+        for i in range(1, numRow):
+            dReturns.loc[i, j] = math.log(data.iloc[i][j] / data.iloc[i - 1][j])
+
+    return dReturns
 
 #Calculate individual returns
 def avgRet(dailyRet):
-	expR = dailyRet.mean()
-	return expR
+	avgR = dailyRet.mean()
+	return avgR
 
 #Calculate portfolio risk and return
-def portData(w, expR, C):
+def portRet(w, expR, C):
 	
 	portR = expR @ w;
 	portStd = np.sqrt(w.T @ C @ w);
@@ -42,120 +53,106 @@ def tradingCost(prevW, updateW, inv, commission):
 	totalCost = totalCap * commission;
 
 	return round(totalCost,2);
-	
-
-#Strategies - Hold the same portfolio.
-def indexPort(data, dt, updateInterval, finalTime, CAP, commission, rf):
-	#w = np.array([0.0909, 0.0909, 0.0909, 0.0909, 0.0909, 0.0909, 0.0909, 0.0909, 0.0909, 0.0909])
-	w = np.array([1])
-	
-	incDt = dt;
-	update = 0;
-	finalTime = int(finalTime/dt)
-
-	#Initialize lists to store returns and trading cost
-	ret = []; #Daily Return
-	investRet = []; #Return on investment
-	costOfTrading = []; 
-	totalCost = CAP;
-	costOfTrading.append(totalCost)
-	
-	
-	for i in range(0,finalTime):
-		priceData = data.iloc[0:dt, 12:13]
-		#priceData = data.iloc[0:dt, 1:11]
-		dailyReturns = logReturns(priceData)
-		expReturns, sigma, corr, C = dataInfo(dailyReturns)
-		portR, portStd = portData(w, expReturns, C)
-
-		
-		if update == updateInterval:
-			totalCost = totalCost + tradingCost(w, w, CAP, commission)
-			costOfTrading.append(totalCost)
-			update = 0;	
-		else:
-			costOfTrading.append(totalCost)
-
-		update = update + incDt;
-		ret.append(portR)
-		dt = dt + incDt;
-
-	return (ret, costOfTrading);
 
 
-#Strategies - Hold the min. var port. 
-def minVarStrat(data, dt, updateInterval, finalTime, CAP, commission, rf):
+#Momentum strategy - 1: For each updating period we sell the three lowest performing stocks
+#and invest in the three highest performing stocks. 
+def momentumStrat(data, dt, updateInterval, initCAP, comm, rf):
 
-	w = np.array([0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11])
-	
-	incDt = dt;
-	update = 0;
-	finalTime = int(finalTime/dt)
+	#Var. for dt return calculations
+	incDt = dt
+	startCounter = 0
+	endCounter = dt
 
-	ret = []; #Daily Return
-	investRet = []; #Return on investment
-	costOfTrading = []; 
-	totalCost = CAP;
-	costOfTrading.append(totalCost)
+	#Var. for updating calculations
+	startUpdate = 0
+	endUpdate = updateInterval
+	updateCounter = 0
+
+	finalTime = int(300/dt)
+	intervalArr = [] #Store dt returns
+	updateArr = [[0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,]] #Store weights for each interval
+	wPlotArr = [[0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,]]
+
+	CAP = initCAP
+	capArr = []
+
+	CAPwCost = initCAP
+	capWcostArr = [];
+
+	tradeCostSum = 0
+
+	wCounter = 0;
+
+	w = np.array([0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,])
+
 
 	for i in range(0,finalTime):
-		priceData = data.iloc[0:dt, 0:9]
-		dailyReturns = logReturns(priceData)
-		expReturns, sigma, corr, C = dataInfo(dailyReturns)
-		portR, portStd = portData(w, expReturns, C)
-		
-		if update == updateInterval:
-			prevW = w;
-			min_w, ERP, minSigma = minRiskPort(expReturns, sigma, C)
-			min_w = np.asarray(min_w) #neccessary since minRiskPort returns a matrix
-			min_w = min_w.flatten()
-			w = min_w
-			totalCost = totalCost + tradingCost(prevW, w, CAP, commission)
-			costOfTrading.append(totalCost)
-			update = 0;
-		else:
-			costOfTrading.append(totalCost)
+		if updateCounter == updateInterval:
+			updatePrice = data.iloc[startUpdate:endUpdate, 0:16]
+			updateRet = dailyReturns(updatePrice)
+			updateAvgRet = avgRet(updateRet)
 
-		update = update + (incDt);
-		ret.append(portR)
+			#Updating strategy calculations
+			minR = updateAvgRet.nsmallest(3)
+			maxR = updateAvgRet.nlargest(3)
+			minIndex = minR.index.values
+			maxIndex = maxR.index.values
+
+			wArr = []
+			wSum = 0
+			wDist = 0
+
+			for k in minIndex:
+				wArr.append(w[k])
+				w[k] = 0;
+
+			wSum = sum(wArr)
+			wDist = wSum/3.0
+
+			for j in maxIndex:
+				tmpW = w[j] + wDist
+				w[j] = tmpW
+
+			updateArr = np.vstack([updateArr, w])
+			tradeCost = tradingCost(updateArr[wCounter], updateArr[wCounter+1], CAP, comm)
+			tradeCostSum = tradeCostSum - tradeCost
+
+			#Update counters
+			startUpdate = startUpdate + updateInterval
+			endUpdate = endUpdate + updateInterval
+			updateCounter = 0
+			wCounter = wCounter + 1
+
+		intervalPrice = data.iloc[startCounter:dt, 0:16]
+		intervalRet = dailyReturns(intervalPrice)
+		intervalAvgRet, intervalStd, intervalCorr, intervalC = dataInfo(intervalRet)
+		intervalPortAvgRet, intervalPortStdDev = portRet(w, intervalAvgRet, intervalC)
+		CAP = CAP + (CAP*intervalPortAvgRet)
+		CAPwCost = CAP + tradeCostSum
+
+		CAP = round(CAP,2)
+		CAPwCost = round(CAPwCost,2)
+
+		wPlotArr = np.vstack([wPlotArr, w])
+		intervalArr.append(intervalPortAvgRet)
+		capArr.append(CAP)
+		capWcostArr.append(CAPwCost)
+
+		#Update Counters
+		updateCounter = updateCounter + incDt
+		startCounter = startCounter + incDt
 		dt = dt + incDt
 
-	return (ret, costOfTrading);
 
-def marketPortStrat(data, dt, updateInterval, finalTime, CAP, commission, rf):
+	return (wPlotArr, intervalArr, capArr, capWcostArr)
 
-	w = np.array([0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11])
 
-	incDt = dt;
-	update = 0;
-	finalTime = int(finalTime/dt)
 
-	ret = []; #Daily Return
-	investRet = []; #Return on investment
-	costOfTrading = []; 
-	totalCost = CAP;
-	costOfTrading.append(totalCost)
+#def momentumStratShort(data, dt, updateInterval, initCAP, comm, rf):
 
-	for i in range(0,finalTime):
-		priceData = data.iloc[0:dt, 0:9]
-		dailyReturns = logReturns(priceData)
-		expReturns, sigma, corr, C = dataInfo(dailyReturns)
-		portR, portStd = portData(w, expReturns, C)
-		
-		if update == updateInterval:
-			prevW = w;
-			w_mp, r_mp, sigma_mp = marketPort(expReturns, rf, C)
-			w_mp = np.asarray(w_mp) #neccessary since minRiskPort returns a matrix
-			w_mp = w_mp.flatten()
-			w = w_mp
-			totalCost = totalCost + tradingCost(prevW, w, CAP, commission)
-			costOfTrading.append(totalCost)
-			update = 0;
-		else:
-			costOfTrading.append(totalCost)
 
-		update = update + (incDt);
-		ret.append(portR)
-		dt = dt + incDt
 
-	return (ret, costOfTrading);
+
+
+
