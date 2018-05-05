@@ -7,6 +7,8 @@ import requests
 import pandas as pd
 import numpy as np
 import pdb
+import json
+from django.core.serializers.json import DjangoJSONEncoder
 from datetime import datetime
 from django.urls import reverse
 
@@ -27,7 +29,7 @@ DEFAULT_TODATESTRAT = "1.1.2015" #1.1.2015
 DEFAULT_LENGTH = 995
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-ec5913fb-1c33-47fc-abc6-b09957f444a9'
+    'Authorization': 'GUSER-05b92938-e538-49d5-a461-96346d3716b0'
     }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -80,7 +82,7 @@ def home(request, input_symbol=None):
     return render(request, 'base.html', {
         'inputdata' : str(Symbol),
         # Respone for livemarketdata.com API
-        'tradingDate' : [datetime.strptime(i['trading_date'], "%Y-%m-%dT%H:%M:%S").strftime("%d.%m.%Y") for i in data],
+        'tradingDate' : json.dumps([datetime.strptime(i['trading_date'], "%Y-%m-%dT%H:%M:%S").strftime("%d.%m.%Y") for i in data]),
         'officialLast': [i['official_last'] for i in data],
         # Respone for currency API
         'shortNames': [i['shortName'] for i in data2['results']],
@@ -107,7 +109,7 @@ def market(request):
 
         #df = pd.read_csv('fjarmal/data.csv', encoding = 'latin-1')
         priceData = df.iloc[0:300, 0:16]
-        noRows = df.shape;
+        noRows = df.shape
 
         RISK_FREE_RATE = 0.0002
 

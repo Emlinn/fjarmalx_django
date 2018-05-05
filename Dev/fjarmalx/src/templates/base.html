@@ -297,7 +297,7 @@
       var myChart = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: {{ officialLast }},
+          labels: {{ tradingDate|safe }},
           datasets: [{
             data: {{ officialLast }},
             lineTension: 0,
@@ -315,12 +315,16 @@
           },
           scales: {
             yAxes: [{
-              display : false,
+              display : true,
               gridLines : {
                     display : true
-                },
+              },
               ticks: {
                 beginAtZero: false
+              },
+              scaleLabel: {
+                display: true,
+                labelString: 'Price (Kr)'
               }
             }]
           },
