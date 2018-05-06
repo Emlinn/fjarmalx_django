@@ -27,7 +27,7 @@ DEFAULT_TODATESTRAT = "1.1.2018" #1.1.2015
 DEFAULT_LENGTH = 996 #995
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-05b92938-e538-49d5-a461-96346d3716b0'
+    'Authorization': 'GUSER-8d6f7343-927b-4453-bd3d-087f525e1bc1'
     }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -172,25 +172,31 @@ def strat(request):
             #return HttpResponseRedirect('/marketport/?rate={0}'.format(newRate))
             return HttpResponseRedirect('/marketport/?rate={0}'.format(request.POST.get('rate')))
     else:
-        #stockData = getStocksForStrat()
+        
         stockData = getStocksForStrat()
         df = pd.DataFrame.from_dict(stockData, orient = 'columns') #Max. 830 rows and 9 columns for current selection
-        priceData = df.iloc[600:900, 0:16]
+        indexDf =  pd.read_csv('fjarmal/index.csv', encoding = 'latin-1')
+        priceData = df.iloc[300:900, 0:16]
+        indexData = indexDf.iloc[300:900, 1:2]
+
       
 
         dt = 5
-        updateInterval = 55; #User input 
+        updateInterval = 100; #User input 
         initCAP = 1000000 #User input
         comm = 0.025 #User input
         rf = 0.0002; #User input
 
-        #Strategies Functions
-        stratW, stratRet, stratCAP, stratCAPwCost = momentumStrat(priceData, dt, updateInterval, initCAP, comm, rf) 
+        #Strategies Functions 
+        indexCAP = indexStrat(indexData, dt, updateInterval, initCAP, comm, rf)
+        #stratW, stratRet, stratCAP, stratCAPwCost = momentumStrat(priceData, dt, updateInterval, initCAP, comm, rf)
+        stratW, stratRet, stratCAP, stratCAPwCost = momentumStratShort(priceData, dt, updateInterval, initCAP, comm, rf)
         stratW = stratW.tolist()
-        
+    
 
         return render(request, 'strat.html', {
             'dt' : dt,
+            'indexCAP' : indexCAP,
             'stratW' : stratW,
             'stratRet' : stratRet,
             'stratCAP' : stratCAP,

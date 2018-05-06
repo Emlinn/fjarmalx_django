@@ -138,7 +138,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
     <script>
 
+
       var dt = {{ dt }}
+      var indexCAP = {{ indexCAP }}
       var stratW = {{ stratW }}
       var stratRet = {{ stratRet }}
       var stratCAP = {{ stratCAP }}
@@ -175,6 +177,11 @@
             showInLegend: true,
             dataPoints: dataPoints2,
             markerType: "none"
+          },{
+            type: "line",
+            showInLegend: true, 
+            dataPoints: dataPoints3,
+            markerType: "none"
           }]
         });
 
@@ -191,6 +198,7 @@
           for (var j = 0; j < count; j++) {
             yVal1 = stratCAP[xVal];
             yVal2 = stratCAPwCost[xVal];
+            yVal3 = indexCAP[xVal];
 
             dataPoints1.push({
               x: xVal * dt,
@@ -200,16 +208,23 @@
               x: xVal * dt,
               y: yVal2
             });
+            dataPoints3.push({
+              x: xVal * dt,
+              y: yVal3
+            });
+
             xVal++;
           }
 
           if (dataPoints1.length > dataLength) {
             dataPoints1.shift();
             dataPoints2.shift();
+            dataPoints3.shift();
           }
 
           chart.options.data[0].legendText = "Evolution Trading Strat. (w/o cost): " + yVal1.toFixed(6);
           chart.options.data[1].legendText = "Evolution Trading Strat. (w. cost): " + yVal2.toFixed(6);
+          chart.options.data[2].legendText = "OMXI 8 Index " + yVal3.toFixed(6);
           chart.render();
         };
         //BAR CHART*****************************************************************************
@@ -319,7 +334,7 @@
 
         //START SIMULATION**********************************************************************
 
-        var updateInterval = 2000;
+        var updateInterval = 1000;
         
         updateChart(dataLength);
         updateBarChart();
