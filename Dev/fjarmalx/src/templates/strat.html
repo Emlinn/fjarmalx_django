@@ -86,7 +86,19 @@
 
           <div class="container-fluid">
             <div class="row">
-                  <div class = "col-sm-10" id = "chartContainer" style="height: 300px; width: 100%;"></div>
+                  <div class = "col-sm-10" id = "chartContainer" style="height: 300px; width: 100%;">
+                    {% if whatStrat == 0 %}
+                          <div id="w">
+                              <div class="notify successbox">
+                                <h1>Strategies</h1>
+                                <p>Fill out desired inputs here for Momentum trading Strategies on the right. Do take note that this may take a while to load. <br /><br />
+                                  Strategy 1 : <br />Momentum trading <br /><br />
+                                  Strategy 2 : <br />Momentum trading with shorting allowed <br /><br />
+                                </p>
+                              </div>
+                          </div><!-- @end #w -->
+                          {% endif %}
+                  </div>
                   <div class="col-sm-2" id="form_control">
                     <form action="/strat/" method="post">
                       {% csrf_token %}
