@@ -84,15 +84,15 @@
             <div class="container-fluid">
               <div class="row">
                   <div class="col-sm-4" id="colstyle">
-                    <h1 class="_800 l-s-n-4x inline m-r-sm">26</h1>
-                    <span class="inline l-h-1x">Stocks<br><small class="text-muted">on the icelandic market</small></span>
-                  </div>
-                  <div class="col-sm-4" id="colstyle">
-                    <h1 class="_800 l-s-n-4x inline m-r-sm text-danger">4</h1>
-                    <span class="inline l-h-1x">Stocks<br><small class="text-muted">are in First North</small></span>
-                  </div>
-                  <div class="col-sm-4" id="colstyle">
                     <h1 class="_800 l-s-n-4x inline m-r-sm text-danger">{{inputdata}}</h1>
+                    <span class="inline l-h-1x">Market Value<br><small class="text-danger">{{marketV}} ISK</small></span>
+                  </div>
+                  <div class="col-sm-4" id="colstyle">
+                    <h1 class="_800 l-s-n-4x inline m-r-sm text-white">.</h1>
+                    <span class="inline l-h-1x">P/E ratio<br><small class="text-danger">{{peRatio}}</small></span>
+                  </div>
+                  <div class="col-sm-4" id="colstyle">
+                    <h1 class="_800 l-s-n-4x inline m-r-sm text-white">.</h1>
                     <span class="inline l-h-1x">Daily change<br><small class="text-muted">
                       {% if dailyChange < 0 %}
                       <p style="color:#dc3545;">{{ dailyChange }} % </p>
@@ -246,7 +246,6 @@
             </table>
           </div>
           {{tradingDate}}
-          {{officialLast}}
           </div>
         </main>
       </div>

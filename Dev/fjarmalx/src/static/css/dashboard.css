@@ -20,8 +20,8 @@ body {
   margin-right: auto;
   margin-bottom: 10px;
   border-radius: 50%;
-  height: auto;
-  width: auto;
+  height: 150px;
+  width: 150px;
   max-width: 150px;
   max-height: 150px;
 }
@@ -43,6 +43,7 @@ body {
 }
 
 #aboutRigg {
+  margin-top: 50px;
   text-align: center;
 }
 
@@ -140,6 +141,15 @@ body {
 
 #form_control {
   margin-top: 3rem!important;
+}
+
+#form_control label {
+  margin-right: 3rem;
+}
+
+#form_control input {
+  width: 6em;
+  margin-bottom: 1rem;
 }
 
 #form_button_margin {

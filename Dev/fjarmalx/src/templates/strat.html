@@ -78,23 +78,8 @@
             <h1 class="h2">Strategies</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group dropleft" id="bootstrap-overrides">
-                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <span data-feather="calendar"></span>
-                  Time
-                </button>
-                <div class="dropdown-menu">
-                  <!-- Dropdown menu links -->
-                  <a class="dropdown-item" href="#">Last week</a>
-                  <a class="dropdown-item" href="#">Last month</a>
-                  <a class="dropdown-item" href="#">Last year</a>
-                  <a class="dropdown-item" href="#">Last 5 years</a>
-                </div>
               </div>
               <div id=buttonOverwrite>
-              <button type="button" class="btn btn-outline-danger" type="submit" value="Submit">
-                <span data-feather="plus"></span>
-                Submit
-              </button>
             </div>
             </div>
           </div>
@@ -103,13 +88,15 @@
             <div class="row">
                   <div class = "col-sm-10" id = "chartContainer" style="height: 300px; width: 100%;"></div>
                   <div class="col-sm-2" id="form_control">
-                    <button type = "button" class = "btn btn-success btn-md" id = "start" style = "width: 150px; margin-bottom: 10px">START SIM.</button>
-                    <button type = "button" class = "btn btn-danger btn-md" id = "stop" style = "width: 150px;">STOP SIM.</button>
-                    <form action="/marketport/" method="post">
+                    <form action="/strat/" method="post">
                       {% csrf_token %}
-                      {{ rateForm }}
+                      {{ stratForm }} <br />
                       <input class="btn-sm btn-outline-danger" type="submit" value="Submit" id="form_button_margin" />
-                    </form>
+                  </form><br />
+                  {% if whatStrat == strat1 or whatStrat == strat2 %}
+                  <button type = "button" class = "btn-sm btn-success" id = "start" style = "width: 150px; margin-bottom: 10px">START SIM.</button>
+                  <button type = "button" class = "btn-sm btn-danger" id = "stop" style = "width: 150px;">STOP SIM.</button>
+                  {% endif %}
                   </div>
                   <div class = "col-sm-10" id = "barContainer" style="height: 300px; width: 100%;"></div>
                   <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
@@ -145,13 +132,13 @@
       var stratRet = {{ stratRet }}
       var stratCAP = {{ stratCAP }}
       var stratCAPwCost = {{ stratCAPwCost }}
-      
+
 
       window.onload = function(){
         //RETURN PLOT************************************************************************
-        var dataPoints1 = []; 
-        var dataPoints2 = []; 
-        var dataPoints3 = []; 
+        var dataPoints1 = [];
+        var dataPoints2 = [];
+        var dataPoints3 = [];
 
         var chart = new CanvasJS.Chart("chartContainer", {
           title :{
@@ -166,7 +153,7 @@
           legend: {
             verticalAlign: "top",
             fontSize: 10
-          },    
+          },
           data: [{
             type: "line",
             showInLegend: true,
@@ -179,7 +166,7 @@
             markerType: "none"
           },{
             type: "line",
-            showInLegend: true, 
+            showInLegend: true,
             dataPoints: dataPoints3,
             markerType: "none"
           }]
@@ -233,7 +220,7 @@
           var wData3;
           var wData4;
           var wData5;
-          var wData6; 
+          var wData6;
           var wData7;
           var wData8;
           var wData9;
@@ -288,7 +275,7 @@
 
           });
 
-        
+
           function updateBarChart(){
             var deltaY;
             var dps = barChart.options.data[0].dataPoints;
@@ -335,12 +322,12 @@
         //START SIMULATION**********************************************************************
 
         var updateInterval = 1000;
-        
+
         updateChart(dataLength);
         updateBarChart();
 
         var interval = setInterval(function(){updateChart(); updateBarChart()}, updateInterval);
-        
+
 
         $('#stop').click(function(){
           clearInterval(interval)
