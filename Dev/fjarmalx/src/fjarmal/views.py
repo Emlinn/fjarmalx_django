@@ -27,7 +27,7 @@ DEFAULT_TODATESTRAT = "1.1.2018" #1.1.2015
 DEFAULT_LENGTH = 996 #995
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-8d6f7343-927b-4453-bd3d-087f525e1bc1'
+    'Authorization': 'GUSER-d34d0dd1-19c9-4c61-9a1f-79d17cb7247e'
     }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -175,32 +175,36 @@ def strat(request):
         
         stockData = getStocksForStrat()
         df = pd.DataFrame.from_dict(stockData, orient = 'columns') #Max. 830 rows and 9 columns for current selection
+        #df = pd.read_csv('fjarmal/data.csv', encoding = 'latin-1')
         indexDf =  pd.read_csv('fjarmal/index.csv', encoding = 'latin-1')
-        priceData = df.iloc[300:900, 0:16]
-        indexData = indexDf.iloc[300:900, 1:2]
+        priceData = df.iloc[0:600, 0:17]
+        #priceData = priceData.fillna(0)
+        indexData = indexDf.iloc[0:600, 1:2]
 
       
 
         dt = 5
-        updateInterval = 100; #User input 
+        updateInterval = 50; #User input 
         initCAP = 1000000 #User input
         comm = 0.025 #User input
         rf = 0.0002; #User input
 
         #Strategies Functions 
         indexCAP = indexStrat(indexData, dt, updateInterval, initCAP, comm, rf)
-        #stratW, stratRet, stratCAP, stratCAPwCost = momentumStrat(priceData, dt, updateInterval, initCAP, comm, rf)
-        stratW, stratRet, stratCAP, stratCAPwCost = momentumStratShort(priceData, dt, updateInterval, initCAP, comm, rf)
+        stratW, stratRet, stratCAP, stratCAPwCost, tradingCost = momentumStrat(priceData, dt, updateInterval, initCAP, comm, rf)
+        #stratWShort, stratRetShort, stratCAPShort, stratCAPwCostShort = momentumStratShort(priceData, dt, updateInterval, initCAP, comm, rf)
         stratW = stratW.tolist()
     
 
         return render(request, 'strat.html', {
+            'df': df,
             'dt' : dt,
             'indexCAP' : indexCAP,
             'stratW' : stratW,
             'stratRet' : stratRet,
             'stratCAP' : stratCAP,
-            'stratCAPwCost' : stratCAPwCost
+            'stratCAPwCost' : stratCAPwCost,
+            'tradingCost' : tradingCost
         })
 
 def about(request):

@@ -112,6 +112,7 @@
                     </form>
                   </div>
                   <div class = "col-sm-10" id = "barContainer" style="height: 300px; width: 100%;"></div>
+                  <div class = "col-sm-2" id = "costContainer" style = "height: 300px; width: 100%;"></div>
                   <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
               </div>
             </div>
@@ -145,6 +146,7 @@
       var stratRet = {{ stratRet }}
       var stratCAP = {{ stratCAP }}
       var stratCAPwCost = {{ stratCAPwCost }}
+      var tradingCost = {{ tradingCost }}
       
 
       window.onload = function(){
@@ -246,7 +248,6 @@
           var wData16;
 
           var counter = dataLength; //Neccessary so the return plot and the bar plot align
-          //var counter = 0
           var barChart = new CanvasJS.Chart("barContainer",{
 
             title:{
@@ -307,8 +308,8 @@
               wData12 = stratW[counter][11];
               wData13 = stratW[counter][12];
               wData14 = stratW[counter][13];
-              wData15 = stratW[counter][14]
-              wData16 = stratW[counter][15];;
+              wData15 = stratW[counter][14];
+              wData16 = stratW[counter][15];
 
               dps[i] = {label: "SKEL ", y:wData1};
               dps[i+1] = {label: "EIK ", y:wData2};
@@ -332,6 +333,43 @@
             barChart.render();
           };
 
+        //BAR CHART - ACCUM. TRADING COST******************************************************
+        var updateCostPoints;
+        var costCounter = dataLength;
+
+        var costChart = new CanvasJS.Chart("costContainer",{
+          title: {
+            text: "Accumulated Trading Cost",
+            fontFamily: "tahoma",
+            fontSize: 15,
+            fontWeight: "normal"
+          },
+          axisY: {
+            title: "Cost (ISK)"
+          },
+          data:[{
+            type: "column",
+            dataPoints: [
+              {label: "Trading Cost", y:updateCostPoints}
+            ]
+
+          }]
+
+        });
+
+        function updateCostChart(){
+          var dps = costChart.options.data[0].dataPoints;
+          for(var i = 0; i < 1; i++){
+            updateCostPoints = tradingCost[costCounter]*-1;
+            dps[i] = {label: "Trading Cost", y:updateCostPoints};
+            costCounter = costCounter + 1;
+          }
+
+          costChart.render()
+
+        };
+
+
         //START SIMULATION**********************************************************************
 
         var updateInterval = 1000;
@@ -339,7 +377,7 @@
         updateChart(dataLength);
         updateBarChart();
 
-        var interval = setInterval(function(){updateChart(); updateBarChart()}, updateInterval);
+        var interval = setInterval(function(){updateChart(); updateBarChart(); updateCostChart();}, updateInterval);
         
 
         $('#stop').click(function(){
