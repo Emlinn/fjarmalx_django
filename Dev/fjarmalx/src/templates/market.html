@@ -75,17 +75,17 @@
 
         <main role="main" class="col-md-10 ml-sm-auto col-lg-10 pt-3 px-4" id="maindiv">
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h1 class="h2">Market Portfolio</h1>
+            <h1 class="h2">Efficient Frontier</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
             </div>
           </div>
 
           <div class="container-fluid">
             <div class="row">
-                <div class="col-sm-10" id="colstyle">
+                <div class="col-sm-12" id="colstyle">
                   <canvas class="my-5" id="myChart" width="900" height="450"></canvas>
                 </div>
-                <div class="col-sm-2" id="form_control">
+                <div class="col-sm-5" id="form_control">
                   <form action="/marketport/" method="post">
                     {% csrf_token %}
                     {{ rateForm }}
@@ -133,11 +133,6 @@
     var capitalMarketLine = {{ CML }}
     var restR = {{ restR }}
     var restStdDev = {{ restStdDev }}
-<<<<<<< Updated upstream
-  
-=======
-
->>>>>>> Stashed changes
 
     var ctx = document.getElementById("myChart").getContext('2d');
     var myChart = new Chart(ctx, {

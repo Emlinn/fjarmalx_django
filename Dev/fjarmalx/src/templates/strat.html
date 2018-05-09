@@ -97,8 +97,8 @@
                   </form><br />
                   </div>
                   <div class = "col-sm-12" id = "chartContainer" style="height: 300px; width: 100%;"></div>
-                  <div class = "col-sm-12" id = "barContainer" style="height: 300px; width: 100%;"></div>
-                  <div class = "col-sm-12" id = "costContainer" style="height: 300px; width: 100%;"></div>
+                  <div class = "col-sm-8" id = "barContainer" style="height: 300px; width: 100%;"></div>
+                  <div class = "col-sm-4" id = "costContainer" style="height: 300px; width: 100%;"></div>
                     {% if whatStrat == 0 %}
                           <div id="w">
                               <div class="notify successbox">
@@ -111,20 +111,6 @@
                           </div><!-- @end #w -->
                           {% endif %}
                   </div>
-                  <div class="col-sm-2" id="form_control">
-                    <form action="/strat/" method="post">
-                      {% csrf_token %}
-                      {{ stratForm }} <br />
-                      <input class="btn-sm btn-outline-danger" type="submit" value="Submit" id="form_button_margin" />
-                  </form><br />
-                  {% if whatStrat == strat1 or whatStrat == strat2 %}
-                  <button type = "button" class = "btn-sm btn-success" id = "start" style = "width: 150px; margin-bottom: 10px">START SIM.</button>
-                  <button type = "button" class = "btn-sm btn-danger" id = "stop" style = "width: 150px;">STOP SIM.</button>
-                  {% endif %}
-                  </div>
-                  <div class = "col-sm-10" id = "barContainer" style="height: 300px; width: 100%;"></div>
-                  <div class = "col-sm-2" id = "costContainer" style = "height: 300px; width: 100%;"></div>
-                  <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
               </div>
             </div>
         </main>
@@ -323,22 +309,22 @@
               wData15 = stratW[counter][14];
               wData16 = stratW[counter][15];
 
-              dps[i] = {label: "SKEL ", y:wData1};
-              dps[i+1] = {label: "EIK ", y:wData2};
-              dps[i+2] = {label: "REITIR ", y:wData3};
-              dps[i+3] = {label: "SIMINN", y:wData4};
-              dps[i+4] = {label: "GRND", y:wData5};
-              dps[i+5] = {label: "SJOVA", y:wData6};
-              dps[i+6] = {label: "N1", y:wData7};
-              dps[i+7] = {label: "TM", y:wData8};
-              dps[i+8] = {label:"VIS", y:wData9};
-              dps[i+9] = {label:"SYN", y:wData10};
-              dps[i+10] = {label:"EIM", y:wData11};
-              dps[i+11] = {label:"REGINN", y:wData12};
-              dps[i+12] = {label:"HAGA", y:wData13};
-              dps[i+13] = {label:"ORIGO", y:wData14};
-              dps[i+14] = {label:"ICEAIR", y:wData15};
-              dps[i+15] = {label:"MARL", y:wData16};
+              dps[i] = {label: "SKEL ", y:wData1.toFixed(3)};
+              dps[i+1] = {label: "EIK ", y:wData2.toFixed(3)};
+              dps[i+2] = {label: "REITIR ", y:wData3.toFixed(3)};
+              dps[i+3] = {label: "SIMINN", y:wData4.toFixed(3)};
+              dps[i+4] = {label: "GRND", y:wData5.toFixed(3)};
+              dps[i+5] = {label: "SJOVA", y:wData6.toFixed(3)};
+              dps[i+6] = {label: "N1", y:wData7.toFixed(3)};
+              dps[i+7] = {label: "TM", y:wData8.toFixed(3)};
+              dps[i+8] = {label:"VIS", y:wData9.toFixed(3)};
+              dps[i+9] = {label:"SYN", y:wData10.toFixed(3)};
+              dps[i+10] = {label:"EIM", y:wData11.toFixed(3)};
+              dps[i+11] = {label:"REGINN", y:wData12.toFixed(3)};
+              dps[i+12] = {label:"HAGA", y:wData13.toFixed(3)};
+              dps[i+13] = {label:"ORIGO", y:wData14.toFixed(3)};
+              dps[i+14] = {label:"ICEAIR", y:wData15.toFixed(3)};
+              dps[i+15] = {label:"MARL", y:wData16.toFixed(3)};
               counter = counter+1;
             }
 
@@ -388,9 +374,9 @@
 
         updateChart(dataLength);
         updateBarChart();
+        updateCostChart();
 
         var interval = setInterval(function(){updateChart(); updateBarChart(); updateCostChart();}, updateInterval);
-
 
         $('#stop').click(function(){
           clearInterval(interval)

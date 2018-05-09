@@ -28,8 +28,8 @@ DEFAULT_TODATESTRAT = "1.1.2018" #1.1.2015
 DEFAULT_LENGTH = 996 #995
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-d7887bea-e847-4246-948f-de33fec20b50'
-
+    'Authorization': 'GUSER-3718650f-c325-4446-ad74-dfa43ae2b307'
+}
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
 def getStocks():
@@ -151,13 +151,15 @@ def market(request):
         df = pd.DataFrame.from_dict(stockDf, orient = 'columns')
 
         #df = pd.read_csv('fjarmal/data.csv', encoding = 'latin-1')
-        priceData = df.iloc[0:996, 0:16]
+        priceData = df.iloc[200:996, 0:16]
 
-        RISK_FREE_RATE = 0.0002
+        #RISK_FREE_RATE = 0.00002
+        RISK_FREE_RATE = 2/100000.0
 
         #pdb.set_trace() DEBUGGER
         r_f = request.GET.get('rate', RISK_FREE_RATE)
         r_f = float(r_f)
+        r_f = r_f/10000.0 #ATH PASSA HVERJU ER VERIÐ AÐ DEILA MEÐ !!!
         #r_f = 0.00001
 
         # Taka user input i thetta
