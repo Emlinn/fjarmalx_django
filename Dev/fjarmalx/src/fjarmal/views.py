@@ -1,19 +1,34 @@
 from django.shortcuts import render
+from django.http import HttpResponseRedirect
 from django.views.generic import View
 from fjarmal.calc import *
+from fjarmal.moment import *
 import requests
 import pandas as pd
+from pandas import Series
 import numpy as np
+import pdb
+import json
+from django.core.serializers.json import DjangoJSONEncoder
+from datetime import datetime
+from django.urls import reverse
 
-DEFAULT_SYMBOLS = ['SKEL','EIK','REITIR','SIMINN','GRND',
-                    'SJOVA','N1','TM','VIS','EIM',
-                    'EIM','REGINN','HAGA','ORIGO','ICEAIR',
-                    'MARL']
-DEFAULT_FROMDATE = "1.1.2017"
-DEFAULT_TODATE = "1.3.2018"
+from .forms import RiskFreeRateForm
+from .forms import StratForm
+
+NOW = datetime.now()
+
+DEFAULT_SYMBOLS = ['SKEL','EIK','REITIR','SIMINN','GRND','SJOVA','N1','TM','VIS','SYN','EIM','EIM','REGINN','HAGA','ORIGO','ICEAIR','MARL']
+#DEFAULT_SYMBOLS = ['SJOVA','N1','TM','VIS','EIM','REGINN','HAGA','ICEAIR','MARL']
+
+DEFAULT_FROMDATE = "1.1.2015"
+DEFAULT_TODATE = NOW.strftime("%d.%m.%Y")
+DEFAULT_FROMDATESTRAT = "1.1.2014" #1.1.2014
+DEFAULT_TODATESTRAT = "1.1.2018" #1.1.2015
+DEFAULT_LENGTH = 996 #995
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-4ba8e1b2-7767-450c-951c-1d19938c0011'
+    'Authorization': 'GUSER-1fd656aa-b7f7-4982-9760-c3dd24f01ead'
     }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -24,6 +39,23 @@ def getStocks():
         response = requests.get(SINGLE_STOCK_URL.format(symb, DEFAULT_FROMDATE, DEFAULT_TODATE), headers=HEADERS)
         data = response.json()
         stocks[symb] = [ i['official_last'] for i in data ]
+
+    return stocks
+
+def getStocksForStrat():
+    stocks = { key: [] for key in DEFAULT_SYMBOLS }
+
+    for symb in DEFAULT_SYMBOLS:
+        response = requests.get(SINGLE_STOCK_URL.format(symb, DEFAULT_FROMDATESTRAT, DEFAULT_TODATESTRAT), headers=HEADERS)
+
+        company_stocks = [ i['official_last'] for i in response.json() ]
+
+        pad_length = DEFAULT_LENGTH - len(company_stocks)
+        padding = []
+        if pad_length > 0:
+            padding += [0] * pad_length
+
+        stocks[symb] = padding + company_stocks
 
     return stocks
 
@@ -43,85 +75,229 @@ def home(request, input_symbol=None):
     data = response.json()
     data2 = response2.json()
 
+    lastElement = [i['official_last'] for i in data][-1] - [i['official_last'] for i in data][-2]
+    percenteChange = (lastElement/[i['official_last'] for i in data][-2]*100)
+
+    if Symbol == "SKEL":
+        marketValue = "13.023.285.883"
+        peRat = 11.38
+    elif Symbol == "EIK":
+        marketValue = "34.632.931.959"
+        peRat = 8.57
+    elif Symbol == "REITIR":
+        marketValue = "64.923.765.413"
+        peRat = 11.45
+    elif Symbol == "SIMINN":
+        marketValue = "40.766.708.918"
+        peRat = 12.78
+    elif Symbol == "GRND":
+        marketValue = "63.206.006.497"
+        peRat = 20.83
+    elif Symbol == "SJOVA":
+        marketValue = "23.865.687.966"
+        peRat = 13.67
+    elif Symbol == "N1":
+        marketValue = "27.625.000.000"
+        peRat = 14.37
+    elif Symbol == "TM":
+        marketValue = "23.701.086.282"
+        peRat = 7.59
+    elif Symbol == "VIS":
+        marketValue = "30.506.595.952"
+        peRat = 15.42
+    elif Symbol == "SYN":
+        marketValue = "20.632.326.590"
+        peRat = 19.00
+    elif Symbol == "REGINN":
+        marketValue = "39.500.506.270"
+        peRat = 10.43
+    elif Symbol == "ORIGO":
+        marketValue = "9.907.744.544"
+        peRat = 29.33
+    elif Symbol == "ICEAIR":
+        marketValue = "64.826.538.996"
+        peRat = 16.69
+    elif Symbol == "MARL":
+        marketValue = "263.955.203.606"
+        peRat = 20.80
+
+    tradeDate = [datetime.strptime(i['trading_date'], "%Y-%m-%dT%H:%M:%S").strftime("%d.%m.%Y") for i in data]
 
     return render(request, 'base.html', {
         'inputdata' : str(Symbol),
         # Respone for livemarketdata.com API
-        'tradingDate': [i['trading_date'] for i in data],
+        'tradingDate' : json.dumps([datetime.strptime(i['trading_date'], "%Y-%m-%dT%H:%M:%S").strftime("%d.%m.%Y") for i in data]),
         'officialLast': [i['official_last'] for i in data],
         # Respone for currency API
         'shortNames': [i['shortName'] for i in data2['results']],
         'valueCurr': [i['value'] for i in data2['results']],
+        'dailyChange' : float(str(round(percenteChange, 2))),
+        'marketV' : marketValue,
+        'peRatio' : peRat,
     })
 
-def market(request, input_symbol=""):
-    if input_symbol:
-        Symbol = input_symbol
+def market(request):
+    if request.method == 'POST':
+        form = RiskFreeRateForm(request.POST)
+        if form.is_valid:
+            return HttpResponseRedirect('/marketport/?rate={0}'.format(request.POST.get('rate')))
     else:
-        Symbol = "SKEL"
+        #stockDf is a dictionary
+        stockDf = getStocksForStrat()
+        ticker = stockDf.keys()
+        stockTicker = list(ticker)
 
-    V = 1000000
-    dt = 1
+        #Convert dictionary to pandas dataframe
+        df = pd.DataFrame.from_dict(stockDf, orient = 'columns')
 
-    r_f = 0.000005
-    r_c = np.linspace(0.0001,0.01,num=40)
+        #df = pd.read_csv('fjarmal/data.csv', encoding = 'latin-1')
+        priceData = df.iloc[0:996, 0:16]
 
-    url = SINGLE_STOCK_URL.format(Symbol, DEFAULT_FROMDATE, DEFAULT_TODATE)
-    response = requests.get(url, headers=HEADERS)
-    data = response.json()
+        RISK_FREE_RATE = 0.0002
 
-    #stockDf is a dictionary
-    stockDf = getStocks();
-    ticker = stockDf.keys()
+        #pdb.set_trace() DEBUGGER
+        r_f = request.GET.get('rate', RISK_FREE_RATE)
+        r_f = float(r_f)
+        #r_f = 0.00001
 
-    #Convert dictionary to pandas dataframe
-    df = pd.DataFrame.from_dict(stockDf, orient = 'columns')
+        # Taka user input i thetta
+        r_c = np.linspace(0.0003,0.004,num=20)
+
+        #Calculate neccessary data
+        dailyRet, yearlyRet = logReturns(priceData)
+        expRet, sigma, corr, C = dataInfo(dailyRet)
+        min_w, ERP, minSigma = minRiskPort(expRet, sigma, C)
+        w_mp, r_mp, sigma_mp = marketPort(expRet, r_f, C)
+        reqReturnsW, ER, reqSigma = requiredReturns(expRet, C, r_c)
+        adjStdDev, capitalMarketLine = CML(r_mp, r_f, sigma_mp)
+
+        #Constrained efficient frontier
+        restRet, restStdDev = quadOpt(expRet, r_c, C)
+
+        #Convert to list
+        R = expRet.tolist()
+        stdDev = sigma.tolist()
+        ERP = ERP.tolist()
+        minStdDev = minSigma.tolist()
+        rMP = r_mp.tolist()
+        stdDevMP = sigma_mp.tolist()
+        reqER = ER.tolist()
+        reqStdDev = reqSigma.tolist()
+        capMarketLine = capitalMarketLine.tolist()
+        cmlStdDev = adjStdDev.tolist()
+
+        form = RiskFreeRateForm()
+
+        return render(request, 'market.html', {
+            # Respone for livemarketdata.com API
+            'stockTicker' : stockTicker,
+            'R' : R,
+            'stdDev' : stdDev,
+            'ERP' : ERP,
+            'minStdDev' : minStdDev,
+            'rMP' : rMP,
+            'stdDevMP' : stdDevMP,
+            'reqRet' : reqER[0],
+            'reqStdDev' : reqStdDev,
+            'CML' : capMarketLine[0],
+            'cmlStdDev' : cmlStdDev,
+            'restR' : restRet,
+            'restStdDev' : restStdDev,
+            'rateForm': form
+        })
 
 
-    #Calculate neccessary data
-    dailyReturns = logReturns(df)
-    expReturns, sigma, corr, C = dataInfo(dailyReturns)
-    min_w, ERP, minSigma = minRiskPort(expReturns, sigma, C)
-    w_mp, r_mp, sigma_mp = marketPort(expReturns, r_f, C)
-    reqReturnsW, ER, reqSigma = requiredReturns(expReturns, C, r_c)
-    adjStd, capitalMarketLine = CML(sigma, r_mp, r_f, sigma_mp)
-    VaR = ValueAtRisk(0.95, C, min_w, V, dt)
+def strat(request):
+    if request.method == 'POST':
+        form = StratForm(request.POST)
+        if form.is_valid:
+            #return HttpResponseRedirect('/marketport/?rate={0}&capital={1}'.format(request.POST.get(newComission,newCapital)))
+            return HttpResponseRedirect('/strat/?comission={0}&capital={1}&rate={2}&pick_strat={3}'.format(request.POST.get('comission'),request.POST.get('capital'),request.POST.get('rate'),request.POST.get('pick_strat')))
+    else:
+        dt = 5
+        updateInterval = 100 #User input
+        INITIAL_CAPITAL = 1000000 #User input
+        COMISSION = 0.025 #User input
+        DEFAULT_STRAT = 0
+        DEFAULT_RF = 0.0002 #User input
 
-    #Convert to list
-    #stockTick = ticker.tolist()
-    R = expReturns.tolist()
-    stdDev = sigma.tolist()
-    ERP = ERP.tolist()
-    minStdDev = minSigma.tolist()
-    rMP = r_mp.tolist()
-    sigmaMP = sigma_mp.tolist()
-    reqER = ER.tolist()
-    reqStdDev = reqSigma.tolist()
-    capMarketLine = capitalMarketLine.tolist()
-    cmlStd = adjStd.tolist()
-    VaR_list = VaR.tolist()
+        comm = request.GET.get('comission', COMISSION)
+        comm = float(comm)
+        initCAP = request.GET.get('capital', INITIAL_CAPITAL)
+        initCAP = int(initCAP)
+        rf = request.GET.get('rate', DEFAULT_RF)
+        rf = float(rf)
+        strat = request.GET.get('pick_strat', DEFAULT_STRAT)
 
-    return render(request, 'market.html', {
-        # Respone for livemarketdata.com API
-        'officialLast': [i['official_last'] for i in data],
-        'testData' : stockDf,
-        'stockTicker' : ticker,
-        'len' : len(stockDf['REITIR']),
-        'R' : R,
-        'sigma' : stdDev,
-        'ERP' : ERP,
-        'minStdDev' : minStdDev,
-        'rMP' : rMP,
-        'sigmaMP' : sigmaMP,
-        'reqER' : reqER,
-        'reqStdDev' : reqStdDev,
-        'CML' : capMarketLine,
-        'adjStd' : cmlStd,
-        'VaR' : VaR_list
-    })
+        form = StratForm()
 
-# def about(request):
-#     return render(request, 'about.html')
+        #Strategies Functions
+        if strat == 0:
+            return render(request, 'strat.html', {
+                'dt' : dt,
+                'stratForm' : form,
+                'whatStrat' : strat,
+            })
+        if strat == "strat1":
+            stockData = getStocksForStrat()
+            df = pd.DataFrame.from_dict(stockData, orient = 'columns') #Max. 830 rows and 9 columns for current selection
+            indexDf =  pd.read_csv('fjarmal/index.csv', encoding = 'latin-1')
+            priceData = df.iloc[300:900, 0:16]
+            indexData = indexDf.iloc[300:900, 1:2]
+
+            comm = request.GET.get('comission', COMISSION)
+            comm = float(comm)
+            initCAP = request.GET.get('capital', INITIAL_CAPITAL)
+            initCAP = int(initCAP)
+            rf = request.GET.get('rate', DEFAULT_RF)
+            rf = float(rf)
+            strat = request.GET.get('pick_strat', DEFAULT_STRAT)
+
+            indexCAP = indexStrat(indexData, dt, updateInterval, initCAP, comm, rf)
+            stratW, stratRet, stratCAP, stratCAPwCost, tradingCost = momentumStrat(priceData, dt, updateInterval, initCAP, comm, rf)
+            stratW = stratW.tolist()
+            return render(request, 'strat.html', {
+                'dt' : dt,
+                'indexCAP' : indexCAP,
+                'stratForm' : form,
+                'INITCAPAS' : initCAP,
+                'stratW' : stratW,
+                'stratRet' : stratRet,
+                'stratCAP' : stratCAP,
+                'stratCAPwCost' : stratCAPwCost,
+                'tradingCost' : tradingCost
+            })
+        elif strat == "strat2":
+            stockData = getStocksForStrat()
+            df = pd.DataFrame.from_dict(stockData, orient = 'columns') #Max. 830 rows and 9 columns for current selection
+            indexDf =  pd.read_csv('fjarmal/index.csv', encoding = 'latin-1')
+            priceData = df.iloc[300:900, 0:16]
+            indexData = indexDf.iloc[300:900, 1:2]
+
+            comm = request.GET.get('comission', COMISSION)
+            comm = float(comm)
+            initCAP = request.GET.get('capital', INITIAL_CAPITAL)
+            initCAP = int(initCAP)
+            rf = request.GET.get('rate', DEFAULT_RF)
+            rf = float(rf)
+            strat = request.GET.get('pick_strat', DEFAULT_STRAT)
+
+            indexCAP = indexStrat(indexData, dt, updateInterval, initCAP, comm, rf)
+            stratW, stratRet, stratCAP, stratCAPwCost = momentumStratShort(priceData, dt, updateInterval, initCAP, comm, rf)
+            stratW = stratW.tolist()
+            return render(request, 'strat.html', {
+                'dt' : dt,
+                'indexCAP' : indexCAP,
+                'stratForm' : form,
+                'INITCAPAS' : initCAP,
+                'stratW' : stratW,
+                'stratRet' : stratRet,
+                'stratCAP' : stratCAP,
+                'stratCAPwCost' : stratCAPwCost
+            })
 
 def about(request):
+     return render(request, 'about.html')
+
+def data(request):
     return render(request, 'data.html')

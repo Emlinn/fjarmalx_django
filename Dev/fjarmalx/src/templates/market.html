@@ -46,7 +46,7 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="/strat/">
                   <span data-feather="bar-chart-2"></span>
                   Strategies
                 </a>
@@ -64,7 +64,7 @@
               </a>
             </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="/help/">
                   <span data-feather="help-circle"></span>
                   Help
                 </a>
@@ -73,41 +73,27 @@
           </div>
         </nav>
 
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4" id="maindiv">
+        <main role="main" class="col-md-10 ml-sm-auto col-lg-10 pt-3 px-4" id="maindiv">
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h1 class="h2">Market Portfolio</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
-              <div class="btn-group dropleft" id="bootstrap-overrides">
-                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <span data-feather="calendar"></span>
-                  Time
-                </button>
-                <div class="dropdown-menu">
-                  <!-- Dropdown menu links -->
-                  <a class="dropdown-item" href="#">Last week</a>
-                  <a class="dropdown-item" href="#">Last month</a>
-                  <a class="dropdown-item" href="#">Last year</a>
-                  <a class="dropdown-item" href="#">Last 5 years</a>
-                </div>
-              </div>
-              <div id=buttonOverwrite>
-              <button type="button" class="btn btn-outline-danger" type="submit" value="Submit">
-                <span data-feather="plus"></span>
-                Submit
-              </button>
-            </div>
             </div>
           </div>
 
           <div class="container-fluid">
             <div class="row">
-                <div class="col-sm-9" id="colstyle">
-                  <canvas class="my-5" id="myChart" width="900" height="380"></canvas>
+                <div class="col-sm-10" id="colstyle">
+                  <canvas class="my-5" id="myChart" width="900" height="450"></canvas>
                 </div>
-                <div class="col-sm-2">
-                  <p>{{ ERP }}</p>
-                  <p>{{ stockTicker }}</p>
-                  <p>{{ CML }}</p>
+                <div class="col-sm-2" id="form_control">
+                  <form action="/marketport/" method="post">
+                    {% csrf_token %}
+                    {{ rateForm }}
+                    <input class="btn-sm btn-outline-danger" type="submit" value="Submit" id="form_button_margin" />
+                </form>
+                </div>
+                <div id = "dataTest">
+                  <p><p>
                 </div>
               </div>
             </div>
@@ -134,34 +120,39 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
     <script>
 
-    var R = {{ R }};
-    var sigma = {{ sigma }};
+    //var stockTicker = {{ stockTicker }}
+    var R = {{ R }}
+    var stdDev = {{ stdDev }}
     var ERP = {{ ERP }}
-    var minSigma = {{ minStdDev }}
-    var marketReturn = {{ rMP }}
-    var marketSigma = {{ sigmaMP }}
-    var reqReturn = {{ reqER }}
-    var reqSigma = {{ reqStdDev }}
-    var adjSigma = {{ adjStd }}
+    var minStdDev = {{ minStdDev }}
+    var rMP = {{ rMP }}
+    var stdDevMP = {{ stdDevMP }}
+    var reqRet = {{ reqRet }}
+    var reqStdDev = {{ reqStdDev }}
+    var cmlStdDev = {{ cmlStdDev }}
     var capitalMarketLine = {{ CML }}
+    var restR = {{ restR }}
+    var restStdDev = {{ restStdDev }}
+<<<<<<< Updated upstream
+  
+=======
 
-    console.log(R)
-
+>>>>>>> Stashed changes
 
     var ctx = document.getElementById("myChart").getContext('2d');
     var myChart = new Chart(ctx, {
       type: 'bubble',
       data: {
-        labels: "Risk-Return",
+        labels: ['SJOVA','N1','TM','VIS','EIM','REGINN','HAGA','ICEAIR','MARL'],
         datasets:[{
           label: 'Stocks',
           data: makeScatter(),
           backgroundColor: 'rgba(52, 152, 219,0.2)',
-          borderColor: 'rgba(52, 152, 219,1.0)'
+          borderColor: 'rgba(52, 152, 219,1.0)',
         },{
           label: 'Min. Var. Portfolio',
           data: [{
-            x: minSigma,
+            x: minStdDev[0],
             y: ERP,
             r: 5,
           }],
@@ -170,9 +161,9 @@
         },{
           label: 'Market Portfolio',
           data: [{
-            x: marketSigma,
-            y: marketReturn[0],
-            r: 5
+            x: stdDevMP,
+            y: rMP,
+            r: 5,
           }],
           backgroundColor: 'rgba(193,46,12,0.2)',
           borderColor: 'rgba(193,46,12,1)',
@@ -183,27 +174,63 @@
           backgroundColor: 'rgba(46, 204, 113,0.2)',
           borderColor: 'rgba(46, 204, 113,1.0)',
           fill: false,
+          borderWidth: 2
         },{
           type: 'line',
           label: 'CML',
           data: CML(),
-          backgroundColor: 'rgba(211, 84, 0,0.2)',
-          borderColor: 'rgba(211, 84, 0,1.0)',
+          backgroundColor: 'rgba(52, 152, 219,0.2)',
+          borderColor: 'rgba(52, 152, 219,1.0)',
           fill: false,
+          borderWidth: 2
+        },{
+          type: 'line',
+          label: 'Efficient Frontier - No short selling',
+          data: restScatter(),
+          backgroundColor: 'rgba(241, 196, 15,0.2)',
+          borderColor: 'rgba(241, 196, 15,1.0)',
+          fill: false,
+          borderWidth: 2
+
         }]
       },
       options: {
+        scales:{
+          yAxes: [{
+            tick:{
+              beginAtZero: true,
+              max: 0.004,
+              stepSize: 0.0005,
+            }
+          }],
+          xAxes:[{
+            tick:{
+              max: 0.023,
+            }
+          }]
+        },
+
         elements: {
           point: {
             radius: 0
           }
+        },
+        tooltips:{
+          callbacks: {
+            label: function(tooltipItem, data){
+              var label =  data.labels[tooltipItem.index];
+              return label;
+            }
+          }
         }
+
+
       }
     });
 
     function makeScatter(){
       let stockReturns = R;
-      let stockVol = sigma;
+      let stockVol = stdDev;
       let riskReturn  = [];
 
       riskReturn = stockVol.map(function(item, i){
@@ -211,64 +238,49 @@
       });
 
       return riskReturn
+
     }
 
     function reqScatter(){
-      let reqR = reqReturn[0];
-      let reqVol = reqSigma;
+      let reqR = reqRet;
+      let reqVol = reqStdDev;
       let marketFront = [];
 
       marketFront = reqVol.map(function(item, i){
-        return {x: item, y: reqR[i], r:0} 
+        return {x: item, y: reqR[i], r:2}
       });
 
       return marketFront;
     }
 
     function CML(){
-      let cmlReturn = capitalMarketLine[0];
-      let cmlStd = adjSigma;
+      let cmlReturn = capitalMarketLine;
+      let cmlStd = cmlStdDev;
       let capMarkLine = [];
 
       capMarkLine = cmlStd.map(function(item, i){
-         return {x: item, y: cmlReturn[i], r: 2 }
+         return {x: item, y: cmlReturn[i], r: 2}
       })
 
       return capMarkLine;
 
     }
 
+    function restScatter(){
+      let restRet = restR;
+      let restVol = restStdDev;
+      let restFront = [];
 
-    /*
-      var ctx = document.getElementById("myChart");
-      var myChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: {{ officialLast }},
-          datasets: [{
-            data: {{ officialLast }},
-            lineTension: 0,
-            pointRadius: 0,
-            backgroundColor: 'transparent',
-            borderColor: '#dc3545',
-            borderWidth: 2,
-            pointBackgroundColor: '#007bff'
-          }]
-        },
-        options: {
-          scales: {
-            yAxes: [{
-              ticks: {
-                beginAtZero: false
-              }
-            }]
-          },
-          legend: {
-            display: false,
-          }
-        }
-      });
-      */
+      restFront = restVol.map(function(item, i){
+        return {x: item, y:restRet[i], r:2}
+      })
+
+      return restFront;
+      console.log(restRet)
+
+
+    }
+
     </script>
   </body>
 </html>

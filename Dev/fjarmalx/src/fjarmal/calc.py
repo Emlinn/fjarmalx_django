@@ -4,16 +4,32 @@ import pandas as pd
 import numpy as np
 import math
 from scipy.stats import norm
+from numpy import array
+import cvxopt as opt
+from cvxopt import matrix, solvers
 
 def logReturns(data):
-	dailyReturns = data.apply(lambda x: np.log(x) - np.log(x.shift(1)))
-	return dailyReturns
+
+	def numVerify(x,y):
+		if x.any() > 0 and y.any() > 0 :
+			dRet = np.log(x) - np.log(y)
+			return dRet
+		else:
+			return 0
+
+
+	#dailyReturns = data.apply(lambda x: np.log(x) - np.log(x.shift(1)))
+	#yearlyReturns = dailyReturns.apply(lambda x: x*252);
+	dailyReturns = data.apply(lambda x: numVerify(x, x.shift(1)))
+	yearlyReturns = dailyReturns.apply(lambda x: x*252)
+	#dailyReturns = dailyReturns.fillna(0)
+	return (dailyReturns, yearlyReturns)
 
 def dataInfo(dailyReturns):
-	expReturns = dailyReturns.mean()
-	sigma = dailyReturns.std()
-	corr = dailyReturns.corr()
-	C = dailyReturns.cov()
+	expReturns = dailyReturns.apply(lambda s: s[np.isfinite(s)].dropna()).mean()
+	sigma = dailyReturns.apply(lambda s: s[np.isfinite(s)].dropna()).std()
+	corr = dailyReturns.apply(lambda s: s[np.isfinite(s)].dropna()).corr()
+	C = dailyReturns.apply(lambda s: s[np.isfinite(s)].dropna()).cov()
 
 	expReturns = expReturns.as_matrix()
 	sigma = sigma.as_matrix()
@@ -58,8 +74,8 @@ def requiredReturns(expReturns, C, r_c):
 
 	return (reqReturnsW, ER, reqSigma)
 
-def CML(std, r_mp, r_f, std_mp):
-	adjStd = np.insert(std, 0, 0)
+def CML(r_mp, r_f, std_mp):
+	adjStd = np.linspace(0.004,0.022, num = 10)
 	grad = (r_mp - r_f)/std_mp
 	cml = r_f + adjStd * grad;
 	return (adjStd, cml);
@@ -71,6 +87,49 @@ def ValueAtRisk(conf, C, w, V, dt):
 
 	return VaR
 
-#def putOption()
+def quadOpt(expReturns, r_c, C):
+	#CVXOPT SOLVER FOR QUADRADIC PROGRAMMING
+	n = len(expReturns)
+	r_min = 0.0010
+	avg_ret = opt.matrix(expReturns)
+
+	#Objective func.
+	P = opt.matrix(C)
+	q = matrix([0.0 for i in range(n)])
+
+	#Inequality constraints
+	G = matrix(np.concatenate((-np.transpose(np.array(avg_ret)), -np.identity(n)), 0))
+
+	#Equality constraints
+	A = opt.matrix(1.0, (1,n))
+	b = opt.matrix(1.0)
+
+	opts = {'show_progress' : False}
+	rArr = []
+	sArr = []
+
+	for i in r_c:
+		try:
+			r_min = opt.matrix(i)
+			h = matrix(np.concatenate((-np.ones((1, 1)) * r_min, np.zeros((n, 1))), 0))
+			sol = solvers.qp(P, q, G, h, A, b, options=opts)
+			optSol = sol['x']
+			ret = array(avg_ret.T*optSol)
+			sig = np.sqrt(optSol.T*P*optSol)
+			rArr.append(ret)
+			sArr.append(sig)
+		except ValueError:
+			break;
+
+	restRet = []
+	restStdDev = []
+
+	for i in range(len(rArr)):
+		restRet.append(rArr[i][0][0])
+		restStdDev.append(sArr[i][0][0])
+
+	return (restRet, restStdDev)
+
+
 
 	
