@@ -229,14 +229,13 @@ def strat(request):
         rf = float(rf)
         strat = request.GET.get('pick_strat', DEFAULT_STRAT)
         updateInterval = request.GET.get('pick_date', DEFAULT_INTERVAL)
-        updateInterval = int(dt)
+        updateInterval = int(updateInterval)
 
         form = StratForm()
 
         #Strategies Functions
         if strat == 0:
             return render(request, 'strat.html', {
-                'dt' : dt,
                 'stratForm' : form,
                 'whatStrat' : strat,
             })
@@ -258,7 +257,7 @@ def strat(request):
             updateInterval = int(updateInterval)
 
             indexCAP = indexStrat(indexData, dt, updateInterval, initCAP, comm, rf)
-            stratW, stratRet, stratCAP, stratCAPwCost, tradingCost = momentumStrat(priceData, dt, updateInterval, initCAP, comm, rf)
+            stratW, stratRet, stratCAP, stratCAPwCost = momentumStrat(priceData, dt, updateInterval, initCAP, comm, rf)
             stratW = stratW.tolist()
             return render(request, 'strat.html', {
                 'dt' : dt,
