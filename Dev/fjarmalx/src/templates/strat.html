@@ -86,12 +86,22 @@
 
           <div class="container-fluid">
             <div class="row">
-                  <div class = "col-sm-10" id = "chartContainer" style="height: 300px; width: 100%;">
+                  <div class="col-sm-12" id="form_control">
+                    <form action="/strat/" method="post">
+                      {% csrf_token %}
+                      {{ stratForm }}
+                      <input class="btn-sm btn-outline-danger" type="submit" value="Submit" id="form_button_margin" />
+                      {% if whatStrat == strat1 or whatStrat == strat2 %}
+                      <input class="btn-sm btn-outline-danger" type="submit" value="Stop Sim." id="stop" />
+                      {% endif %}
+                  </form><br />
+                  </div>
+                  <div class = "col-sm-12" id = "chartContainer" style="height: 300px; width: 100%;">
                     {% if whatStrat == 0 %}
                           <div id="w">
                               <div class="notify successbox">
                                 <h1>Strategies</h1>
-                                <p>Fill out desired inputs here for Momentum trading Strategies on the right. Do take note that this may take a while to load. <br /><br />
+                                <p>Fill out desired inputs here for Momentum trading Strategies above. Do take note that this may take a while to load. <br /><br />
                                   Strategy 1 : <br />Momentum trading <br /><br />
                                   Strategy 2 : <br />Momentum trading with shorting allowed <br /><br />
                                 </p>
@@ -99,20 +109,6 @@
                           </div><!-- @end #w -->
                           {% endif %}
                   </div>
-                  <div class="col-sm-2" id="form_control">
-                    <form action="/strat/" method="post">
-                      {% csrf_token %}
-                      {{ stratForm }} <br />
-                      <input class="btn-sm btn-outline-danger" type="submit" value="Submit" id="form_button_margin" />
-                  </form><br />
-                  {% if whatStrat == strat1 or whatStrat == strat2 %}
-                  <button type = "button" class = "btn-sm btn-success" id = "start" style = "width: 150px; margin-bottom: 10px">START SIM.</button>
-                  <button type = "button" class = "btn-sm btn-danger" id = "stop" style = "width: 150px;">STOP SIM.</button>
-                  {% endif %}
-                  </div>
-                  <div class = "col-sm-10" id = "barContainer" style="height: 300px; width: 100%;"></div>
-                  <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
-              </div>
             </div>
         </main>
       </div>
@@ -245,7 +241,6 @@
           var wData16;
 
           var counter = dataLength; //Neccessary so the return plot and the bar plot align
-          //var counter = 0
           var barChart = new CanvasJS.Chart("barContainer",{
 
             title:{
@@ -306,8 +301,8 @@
               wData12 = stratW[counter][11];
               wData13 = stratW[counter][12];
               wData14 = stratW[counter][13];
-              wData15 = stratW[counter][14]
-              wData16 = stratW[counter][15];;
+              wData15 = stratW[counter][14];
+              wData16 = stratW[counter][15];
 
               dps[i] = {label: "SKEL ", y:wData1};
               dps[i+1] = {label: "EIK ", y:wData2};
@@ -330,6 +325,43 @@
 
             barChart.render();
           };
+
+        //BAR CHART - ACCUM. TRADING COST******************************************************
+        var updateCostPoints;
+        var costCounter = dataLength;
+
+        var costChart = new CanvasJS.Chart("costContainer",{
+          title: {
+            text: "Accumulated Trading Cost",
+            fontFamily: "tahoma",
+            fontSize: 15,
+            fontWeight: "normal"
+          },
+          axisY: {
+            title: "Cost (ISK)"
+          },
+          data:[{
+            type: "column",
+            dataPoints: [
+              {label: "Trading Cost", y:updateCostPoints}
+            ]
+
+          }]
+
+        });
+
+        function updateCostChart(){
+          var dps = costChart.options.data[0].dataPoints;
+          for(var i = 0; i < 1; i++){
+            updateCostPoints = tradingCost[costCounter]*-1;
+            dps[i] = {label: "Trading Cost", y:updateCostPoints};
+            costCounter = costCounter + 1;
+          }
+
+          costChart.render()
+
+        };
+
 
         //START SIMULATION**********************************************************************
 

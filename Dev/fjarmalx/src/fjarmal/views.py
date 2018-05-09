@@ -28,7 +28,7 @@ DEFAULT_TODATESTRAT = "1.1.2018" #1.1.2015
 DEFAULT_LENGTH = 996 #995
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-c9d3c714-47f5-4f3b-9fa1-c5747a9be1d1'
+    'Authorization': 'GUSER-d7887bea-e847-4246-948f-de33fec20b50'
     }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -212,10 +212,10 @@ def strat(request):
         form = StratForm(request.POST)
         if form.is_valid:
             #return HttpResponseRedirect('/marketport/?rate={0}&capital={1}'.format(request.POST.get(newComission,newCapital)))
-            return HttpResponseRedirect('/strat/?comission={0}&capital={1}&rate={2}&pick_strat={3}'.format(request.POST.get('comission'),request.POST.get('capital'),request.POST.get('rate'),request.POST.get('pick_strat')))
+            return HttpResponseRedirect('/strat/?comission={0}&capital={1}&rate={2}&pick_strat={3}&pick_date={4}'.format(request.POST.get('comission'),request.POST.get('capital'),request.POST.get('rate'),request.POST.get('pick_strat'),request.POST.get('pick_date')))
     else:
         dt = 5
-        updateInterval = 100 #User input
+        DEFAULT_INTERVAL = 100 #User input
         INITIAL_CAPITAL = 1000000 #User input
         COMISSION = 0.025 #User input
         DEFAULT_STRAT = 0
@@ -228,6 +228,8 @@ def strat(request):
         rf = request.GET.get('rate', DEFAULT_RF)
         rf = float(rf)
         strat = request.GET.get('pick_strat', DEFAULT_STRAT)
+        updateInterval = request.GET.get('pick_date', DEFAULT_INTERVAL)
+        updateInterval = int(dt)
 
         form = StratForm()
 
@@ -252,9 +254,11 @@ def strat(request):
             rf = request.GET.get('rate', DEFAULT_RF)
             rf = float(rf)
             strat = request.GET.get('pick_strat', DEFAULT_STRAT)
+            updateInterval = request.GET.get('pick_date', DEFAULT_INTERVAL)
+            updateInterval = int(updateInterval)
 
             indexCAP = indexStrat(indexData, dt, updateInterval, initCAP, comm, rf)
-            stratW, stratRet, stratCAP, stratCAPwCost = momentumStrat(priceData, dt, updateInterval, initCAP, comm, rf)
+            stratW, stratRet, stratCAP, stratCAPwCost, tradingCost = momentumStrat(priceData, dt, updateInterval, initCAP, comm, rf)
             stratW = stratW.tolist()
             return render(request, 'strat.html', {
                 'dt' : dt,
@@ -280,6 +284,8 @@ def strat(request):
             rf = request.GET.get('rate', DEFAULT_RF)
             rf = float(rf)
             strat = request.GET.get('pick_strat', DEFAULT_STRAT)
+            updateInterval = request.GET.get('pick_date', DEFAULT_INTERVAL)
+            updateInterval = int(updateInterval)
 
             indexCAP = indexStrat(indexData, dt, updateInterval, initCAP, comm, rf)
             stratW, stratRet, stratCAP, stratCAPwCost = momentumStratShort(priceData, dt, updateInterval, initCAP, comm, rf)
