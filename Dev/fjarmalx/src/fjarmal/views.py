@@ -14,6 +14,7 @@ from datetime import datetime
 from django.urls import reverse
 
 from .forms import RiskFreeRateForm
+from .forms import StratForm
 
 NOW = datetime.now()
 
@@ -27,7 +28,7 @@ DEFAULT_TODATESTRAT = "1.1.2018" #1.1.2015
 DEFAULT_LENGTH = 996 #995
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-d34d0dd1-19c9-4c61-9a1f-79d17cb7247e'
+    'Authorization': 'GUSER-c9d3c714-47f5-4f3b-9fa1-c5747a9be1d1'
     }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -77,6 +78,51 @@ def home(request, input_symbol=None):
     lastElement = [i['official_last'] for i in data][-1] - [i['official_last'] for i in data][-2]
     percenteChange = (lastElement/[i['official_last'] for i in data][-2]*100)
 
+    if Symbol == "SKEL":
+        marketValue = "13.023.285.883"
+        peRat = 11.38
+    elif Symbol == "EIK":
+        marketValue = "34.632.931.959"
+        peRat = 8.57
+    elif Symbol == "REITIR":
+        marketValue = "64.923.765.413"
+        peRat = 11.45
+    elif Symbol == "SIMINN":
+        marketValue = "40.766.708.918"
+        peRat = 12.78
+    elif Symbol == "GRND":
+        marketValue = "63.206.006.497"
+        peRat = 20.83
+    elif Symbol == "SJOVA":
+        marketValue = "23.865.687.966"
+        peRat = 13.67
+    elif Symbol == "N1":
+        marketValue = "27.625.000.000"
+        peRat = 14.37
+    elif Symbol == "TM":
+        marketValue = "23.701.086.282"
+        peRat = 7.59
+    elif Symbol == "VIS":
+        marketValue = "30.506.595.952"
+        peRat = 15.42
+    elif Symbol == "SYN":
+        marketValue = "20.632.326.590"
+        peRat = 19.00
+    elif Symbol == "REGINN":
+        marketValue = "39.500.506.270"
+        peRat = 10.43
+    elif Symbol == "ORIGO":
+        marketValue = "9.907.744.544"
+        peRat = 29.33
+    elif Symbol == "ICEAIR":
+        marketValue = "64.826.538.996"
+        peRat = 16.69
+    elif Symbol == "MARL":
+        marketValue = "263.955.203.606"
+        peRat = 20.80
+
+    tradeDate = [datetime.strptime(i['trading_date'], "%Y-%m-%dT%H:%M:%S").strftime("%d.%m.%Y") for i in data]
+
     return render(request, 'base.html', {
         'inputdata' : str(Symbol),
         # Respone for livemarketdata.com API
@@ -86,17 +132,16 @@ def home(request, input_symbol=None):
         'shortNames': [i['shortName'] for i in data2['results']],
         'valueCurr': [i['value'] for i in data2['results']],
         'dailyChange' : float(str(round(percenteChange, 2))),
+        'marketV' : marketValue,
+        'peRatio' : peRat,
     })
 
 def market(request):
     if request.method == 'POST':
         form = RiskFreeRateForm(request.POST)
         if form.is_valid:
-            #newRate = form.cleaned_data['rate']
-            #return HttpResponseRedirect('/marketport/?rate={0}'.format(newRate))
             return HttpResponseRedirect('/marketport/?rate={0}'.format(request.POST.get('rate')))
     else:
-
         #stockDf is a dictionary
         stockDf = getStocksForStrat()
         ticker = stockDf.keys()
@@ -111,14 +156,12 @@ def market(request):
         RISK_FREE_RATE = 0.0002
 
         #pdb.set_trace() DEBUGGER
-        #r_f = request.GET.get('rate', RISK_FREE_RATE)
-        #r_f = float(r_f)
-        r_f = 0.00001
+        r_f = request.GET.get('rate', RISK_FREE_RATE)
+        r_f = float(r_f)
+        #r_f = 0.00001
 
         # Taka user input i thetta
         r_c = np.linspace(0.0003,0.004,num=20)
-
-    
 
         #Calculate neccessary data
         dailyRet, yearlyRet = logReturns(priceData)
@@ -130,7 +173,7 @@ def market(request):
 
         #Constrained efficient frontier
         restRet, restStdDev = quadOpt(expRet, r_c, C)
-      
+
         #Convert to list
         R = expRet.tolist()
         stdDev = sigma.tolist()
@@ -144,7 +187,7 @@ def market(request):
         cmlStdDev = adjStdDev.tolist()
 
         form = RiskFreeRateForm()
- 
+
         return render(request, 'market.html', {
             # Respone for livemarketdata.com API
             'stockTicker' : stockTicker,
@@ -162,50 +205,95 @@ def market(request):
             'restStdDev' : restStdDev,
             'rateForm': form
         })
-        
+
 
 def strat(request):
     if request.method == 'POST':
-        form = RiskFreeRateForm(request.POST)
+        form = StratForm(request.POST)
         if form.is_valid:
-            #newRate = form.cleaned_data['rate']
-            #return HttpResponseRedirect('/marketport/?rate={0}'.format(newRate))
-            return HttpResponseRedirect('/marketport/?rate={0}'.format(request.POST.get('rate')))
+            #return HttpResponseRedirect('/marketport/?rate={0}&capital={1}'.format(request.POST.get(newComission,newCapital)))
+            return HttpResponseRedirect('/strat/?comission={0}&capital={1}&rate={2}&pick_strat={3}'.format(request.POST.get('comission'),request.POST.get('capital'),request.POST.get('rate'),request.POST.get('pick_strat')))
     else:
-        
-        stockData = getStocksForStrat()
-        df = pd.DataFrame.from_dict(stockData, orient = 'columns') #Max. 830 rows and 9 columns for current selection
-        #df = pd.read_csv('fjarmal/data.csv', encoding = 'latin-1')
-        indexDf =  pd.read_csv('fjarmal/index.csv', encoding = 'latin-1')
-        priceData = df.iloc[0:600, 0:17]
-        #priceData = priceData.fillna(0)
-        indexData = indexDf.iloc[0:600, 1:2]
-
-      
-
         dt = 5
-        updateInterval = 50; #User input 
-        initCAP = 1000000 #User input
-        comm = 0.025 #User input
-        rf = 0.0002; #User input
+        updateInterval = 100 #User input
+        INITIAL_CAPITAL = 1000000 #User input
+        COMISSION = 0.025 #User input
+        DEFAULT_STRAT = 0
+        DEFAULT_RF = 0.0002 #User input
 
-        #Strategies Functions 
-        indexCAP = indexStrat(indexData, dt, updateInterval, initCAP, comm, rf)
-        stratW, stratRet, stratCAP, stratCAPwCost, tradingCost = momentumStrat(priceData, dt, updateInterval, initCAP, comm, rf)
-        #stratWShort, stratRetShort, stratCAPShort, stratCAPwCostShort = momentumStratShort(priceData, dt, updateInterval, initCAP, comm, rf)
-        stratW = stratW.tolist()
-    
+        comm = request.GET.get('comission', COMISSION)
+        comm = float(comm)
+        initCAP = request.GET.get('capital', INITIAL_CAPITAL)
+        initCAP = int(initCAP)
+        rf = request.GET.get('rate', DEFAULT_RF)
+        rf = float(rf)
+        strat = request.GET.get('pick_strat', DEFAULT_STRAT)
 
-        return render(request, 'strat.html', {
-            'df': df,
-            'dt' : dt,
-            'indexCAP' : indexCAP,
-            'stratW' : stratW,
-            'stratRet' : stratRet,
-            'stratCAP' : stratCAP,
-            'stratCAPwCost' : stratCAPwCost,
-            'tradingCost' : tradingCost
-        })
+        form = StratForm()
+
+        #Strategies Functions
+        if strat == 0:
+            return render(request, 'strat.html', {
+                'dt' : dt,
+                'stratForm' : form,
+                'whatStrat' : strat,
+            })
+        if strat == "strat1":
+            stockData = getStocksForStrat()
+            df = pd.DataFrame.from_dict(stockData, orient = 'columns') #Max. 830 rows and 9 columns for current selection
+            indexDf =  pd.read_csv('fjarmal/index.csv', encoding = 'latin-1')
+            priceData = df.iloc[300:900, 0:16]
+            indexData = indexDf.iloc[300:900, 1:2]
+
+            comm = request.GET.get('comission', COMISSION)
+            comm = float(comm)
+            initCAP = request.GET.get('capital', INITIAL_CAPITAL)
+            initCAP = int(initCAP)
+            rf = request.GET.get('rate', DEFAULT_RF)
+            rf = float(rf)
+            strat = request.GET.get('pick_strat', DEFAULT_STRAT)
+
+            indexCAP = indexStrat(indexData, dt, updateInterval, initCAP, comm, rf)
+            stratW, stratRet, stratCAP, stratCAPwCost = momentumStrat(priceData, dt, updateInterval, initCAP, comm, rf)
+            stratW = stratW.tolist()
+            return render(request, 'strat.html', {
+                'dt' : dt,
+                'indexCAP' : indexCAP,
+                'stratForm' : form,
+                'INITCAPAS' : initCAP,
+                'stratW' : stratW,
+                'stratRet' : stratRet,
+                'stratCAP' : stratCAP,
+                'stratCAPwCost' : stratCAPwCost
+            })
+        elif strat == "strat2":
+            stockData = getStocksForStrat()
+            df = pd.DataFrame.from_dict(stockData, orient = 'columns') #Max. 830 rows and 9 columns for current selection
+            indexDf =  pd.read_csv('fjarmal/index.csv', encoding = 'latin-1')
+            priceData = df.iloc[300:900, 0:16]
+            indexData = indexDf.iloc[300:900, 1:2]
+
+            comm = request.GET.get('comission', COMISSION)
+            comm = float(comm)
+            initCAP = request.GET.get('capital', INITIAL_CAPITAL)
+            initCAP = int(initCAP)
+            rf = request.GET.get('rate', DEFAULT_RF)
+            rf = float(rf)
+            strat = request.GET.get('pick_strat', DEFAULT_STRAT)
+
+            indexCAP = indexStrat(indexData, dt, updateInterval, initCAP, comm, rf)
+            stratW, stratRet, stratCAP, stratCAPwCost = momentumStratShort(priceData, dt, updateInterval, initCAP, comm, rf)
+            stratW = stratW.tolist()
+            return render(request, 'strat.html', {
+                'dt' : dt,
+                'indexCAP' : indexCAP,
+                'stratForm' : form,
+                'INITCAPAS' : initCAP,
+                'stratW' : stratW,
+                'stratRet' : stratRet,
+                'stratCAP' : stratCAP,
+                'stratCAPwCost' : stratCAPwCost
+            })
 
 def about(request):
      return render(request, 'about.html')
