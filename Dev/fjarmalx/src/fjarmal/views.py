@@ -29,7 +29,7 @@ DEFAULT_LENGTH = 996 #995
 HEADERS = {
     'Accept': 'text/json',
     'Authorization': 'GUSER-d7887bea-e847-4246-948f-de33fec20b50'
-    }
+
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
 def getStocks():
@@ -257,7 +257,7 @@ def strat(request):
             updateInterval = int(updateInterval)
 
             indexCAP = indexStrat(indexData, dt, updateInterval, initCAP, comm, rf)
-            stratW, stratRet, stratCAP, stratCAPwCost = momentumStrat(priceData, dt, updateInterval, initCAP, comm, rf)
+            stratW, stratRet, stratCAP, stratCAPwCost, tradingCost = momentumStrat(priceData, dt, updateInterval, initCAP, comm, rf)
             stratW = stratW.tolist()
             return render(request, 'strat.html', {
                 'dt' : dt,
@@ -267,7 +267,8 @@ def strat(request):
                 'stratW' : stratW,
                 'stratRet' : stratRet,
                 'stratCAP' : stratCAP,
-                'stratCAPwCost' : stratCAPwCost
+                'stratCAPwCost' : stratCAPwCost,
+                'tradingCost' : tradingCost
             })
         elif strat == "strat2":
             stockData = getStocksForStrat()
