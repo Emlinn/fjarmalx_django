@@ -145,6 +145,7 @@
       var stratRet = {{ stratRet }}
       var stratCAP = {{ stratCAP }}
       var stratCAPwCost = {{ stratCAPwCost }}
+      var tradingCost = {{ tradingCost }}
 
 
       window.onload = function(){
@@ -375,7 +376,7 @@
         updateChart(dataLength);
         updateBarChart();
 
-        var interval = setInterval(function(){updateChart(); updateBarChart()}, updateInterval);
+        var interval = setInterval(function(){updateChart(); updateBarChart(); updateCostChart();}, updateInterval);
 
 
         $('#stop').click(function(){
