@@ -57,5 +57,7 @@ pyvenv.cfg
 .venv
 pip-selfcheck.json
 
+*.csv
+
 
 # End of https://www.gitignore.io/api/macos,django,virtualenv
