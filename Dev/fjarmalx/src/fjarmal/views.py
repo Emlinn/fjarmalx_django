@@ -28,7 +28,7 @@ DEFAULT_TODATESTRAT = "1.1.2018" #1.1.2015
 DEFAULT_LENGTH = 996 #995
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-4d701a51-374b-437b-ad78-dbdaa0b2eb27'
+    'Authorization': 'GUSER-354f7e88-d1cc-4f9e-ac4f-ae07c8af7136'
 }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -249,8 +249,8 @@ def strat(request):
             stockData = getStocksForStrat()
             df = pd.DataFrame.from_dict(stockData, orient = 'columns') #Max. 830 rows and 9 columns for current selection
             indexDf =  pd.read_csv('fjarmal/index.csv', encoding = 'latin-1')
-            priceData = df.iloc[300:600, 0:16]
-            indexData = indexDf.iloc[300:600, 1:2]
+            priceData = df.iloc[600:900, 0:16]
+            indexData = indexDf.iloc[600:900, 1:2]
 
             comm = request.GET.get('comission', COMISSION)
             comm = float(comm)
@@ -288,8 +288,8 @@ def strat(request):
             stockData = getStocksForStrat()
             df = pd.DataFrame.from_dict(stockData, orient = 'columns') #Max. 830 rows and 9 columns for current selection
             indexDf =  pd.read_csv('fjarmal/index.csv', encoding = 'latin-1')
-            priceData = df.iloc[300:900, 0:16]
-            indexData = indexDf.iloc[300:900, 1:2]
+            priceData = df.iloc[600:900, 0:16]
+            indexData = indexDf.iloc[600:900, 1:2]
 
             comm = request.GET.get('comission', COMISSION)
             comm = float(comm)
@@ -324,13 +324,54 @@ def strat(request):
                 'stratForm' : form,
                 'whatStrat' : strat,
             })
+        elif strat == "strat3":
+            stockData = getStocksForStrat()
+            df = pd.DataFrame.from_dict(stockData, orient = 'columns') #Max. 830 rows and 9 columns for current selection
+            indexDf =  pd.read_csv('fjarmal/index.csv', encoding = 'latin-1')
+            priceData = df.iloc[600:900, 0:16]
+            indexData = indexDf.iloc[600:900, 1:2]
+
+            comm = request.GET.get('comission', COMISSION)
+            comm = float(comm)
+            initCAP = request.GET.get('capital', INITIAL_CAPITAL)
+            initCAP = int(initCAP)
+            rf = request.GET.get('rate', DEFAULT_RF)
+            rf = float(rf)
+            strat = request.GET.get('pick_strat', DEFAULT_STRAT)
+            updateInterval = request.GET.get('pick_date', DEFAULT_INTERVAL)
+            updateInterval = int(updateInterval)
+
+            indexCAP = indexStrat(indexData, dt, updateInterval, initCAP, comm, rf)
+            stratW, stratRet, stratCAP, stratCAPwCost, tradingCost = momentumStratCap(priceData, dt, updateInterval, initCAP, comm, rf)
+            stratW = stratW.tolist()
+            return render(request, 'strat.html', {
+
+                'dt' : dt,
+                'indexCAP' : indexCAP,
+                'stratW' : stratW,
+                'stratRet' : stratRet,
+                'stratCAP' : stratCAP,
+                'stratCAPwCost' : stratCAPwCost,
+                'tradingCost' : tradingCost,
+                'stratMidW' : 0,
+                'stratMidCAP' : 0,
+                'stratMidCAPwCost' : 0,
+                'tradingMidCost' :0,
+                'stratLongW':0,
+                'stratLongCAP':0,
+                'stratLongCAPwCost':0,
+                'tradingLongCost':0,
+                'stratForm' : form,
+                'whatStrat' : strat,
+            })
+
         elif strat == "comp":
             stockData = getStocksForStrat()
             df = pd.DataFrame.from_dict(stockData, orient = 'columns') #Max. 830 rows and 9 columns for current selection
-            priceData = df.iloc[300:900, 0:16]
+            priceData = df.iloc[600:900, 0:16]
 
             indexDf =  pd.read_csv('fjarmal/index.csv', encoding = 'latin-1')
-            indexData = indexDf.iloc[300:900, 1:2]
+            indexData = indexDf.iloc[600:900, 1:2]
 
             comm = request.GET.get('comission', COMISSION)
             comm = float(comm)
