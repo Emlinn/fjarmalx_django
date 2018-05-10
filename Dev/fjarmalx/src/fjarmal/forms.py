@@ -5,7 +5,7 @@ STRAT_CHOICES= [
     ('strat1', 'Strategy 1'),
     ('strat2', 'Strategy 2'),
     ('strat3', 'Strategy 3'),
-    ('comp', 'Strat. Compare')
+    ('comp', 'Strat. Compare'),
     ]
 
 
@@ -17,7 +17,7 @@ DATE_CHOICES = [
 ]
 
 class RiskFreeRateForm(forms.Form):
-    rate = forms.FloatField(label='Risk Free Rate:', min_value=0, max_value=1)
+    rate = forms.FloatField(label='Risk Free Rate:', min_value=0, max_value=100)
 
 class StratForm(forms.Form):
     comission = forms.FloatField(label='Comission:', min_value=0, max_value=1)

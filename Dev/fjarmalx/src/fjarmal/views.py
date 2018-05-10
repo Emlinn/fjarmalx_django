@@ -28,7 +28,7 @@ DEFAULT_TODATESTRAT = "1.1.2018" #1.1.2015
 DEFAULT_LENGTH = 996 #995
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-4d701a51-374b-437b-ad78-dbdaa0b2eb27'
+    'Authorization': 'GUSER-5ae827ae-1665-4629-83b9-f1a463e2c613'
 }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -159,7 +159,7 @@ def market(request):
         #pdb.set_trace() DEBUGGER
         r_f = request.GET.get('rate', RISK_FREE_RATE)
         r_f = float(r_f)
-        r_f = r_f/10000.0 #ATH PASSA HVERJU ER VERIÐ AÐ DEILA MEÐ !!!
+        r_f = r_f/100000.0 #ATH PASSA HVERJU ER VERIÐ AÐ DEILA MEÐ !!!
         #r_f = 0.00001
 
         # Taka user input i thetta
@@ -355,9 +355,9 @@ def strat(request):
             stratMidW = stratMidW.tolist()
             stratLongW = stratLongW.tolist()
             return render(request, 'strat.html', {
-
+            
                 'dt' : dt,
-                'indexCAP':indexCAP,
+                'indexCAP': indexCAP,
                 'stratW' : stratW,
                 'stratCAP' : stratCAP,
                 'stratCAPwCost' : stratCAPwCost,
@@ -366,10 +366,10 @@ def strat(request):
                 'stratMidCAP' : stratMidCAP,
                 'stratMidCAPwCost' : stratMidCAPwCost,
                 'tradingMidCost' : tradingMidCost,
-                'stratLongW':stratLongW,
-                'stratLongCAP':stratLongCAP,
-                'stratLongCAPwCost':stratLongCAPwCost,
-                'tradingLongCost':tradingLongCost,
+                'stratLongW' : stratLongW,
+                'stratLongCAP' : stratLongCAP,
+                'stratLongCAPwCost' : stratLongCAPwCost,
+                'tradingLongCost' : tradingLongCost,
                 'stratForm' : form,
                 'whatStrat' : strat,
 
