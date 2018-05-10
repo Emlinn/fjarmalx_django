@@ -79,13 +79,15 @@
                       {% csrf_token %}
                       {{ stratForm }}
                       <input class="btn-sm btn-outline-danger" type="submit" value="Submit" id="form_button_margin" />
-                      {% if whatStrat == "strat1" or "whatStrat" == strat2 %}
+                      {% if whatStrat == strat1 or whatStrat == strat2 %}
                       <input class="btn-sm btn-outline-danger" type="submit" value="Stop Sim." id="stop" />
                       <div class = "col-sm-12" id = "chartContainer" style="height: 300px; width: 100%;"></div>
-                      <div class = "col-sm-8" id = "barContainer" style="height: 300px; width: 100%;"></div>
-                      <div class = "col-sm-4" id = "costContainer" style="height: 300px; width: 100%;"></div>
+                      <div class = "row">
+                        <div class = "col-sm-8" id = "barContainer" style="height: 300px; width: 100%;"></div>
+                        <div class = "col-sm-4" id = "costContainer" style="height: 300px; width: 100%;"></div>
+                      </div>
                       {% endif %}
-                      {% if whatStrat == "comp" %}
+                      {% if whatStrat == comp %}
                       <input class="btn-sm btn-outline-danger" type="submit" value="Stop Sim." id="stop" />
                       <div class = "col-sm-12" id = "compContainer" style="height: 300px; width: 100%;"></div>
                       {% endif %}
@@ -373,6 +375,7 @@
         };
 
         //UPDATE INTERVAL COMPARISSON***********************************************************
+/*
         var compPoints1 = [];
         var compPoints2 = [];
         var compPoints3 = [];
@@ -437,12 +440,6 @@
 
           }
 
-          if (compPoints1.length > dataLength) {
-            dataPoints1.shift();
-            dataPoints2.shift();
-            dataPoints3.shift();
-          }
-
           chart.options.data[0].legendText = "10-day update interval: " + yVal1.toFixed(2);
           chart.options.data[1].legendText = "50-day update interval: " + yVal2.toFixed(2);
           chart.options.data[2].legendText = "100-day update interval: " + yVal3.toFixed(2);
@@ -450,7 +447,7 @@
 
         };
 
-
+*/
         //START SIMULATION**********************************************************************
 
         var updateInterval = 1000;
@@ -458,15 +455,14 @@
         updateChart(dataLength);
         updateBarChart();
         updateCostChart();
-        updateCompChart();
+        //updateCompChart();
 
         intervalCounter = 0;
-        var interval = setInterval(function(){updateChart(); updateBarChart(); updateCostChart();updateCompChart();intervalCounter = intervalCounter + 1; if(intervalCounter == 39){stopSimulation()}}, updateInterval);
-        //var interval = setInterval(function(){updateCompChart();}, updateInterval)
+        //var interval = setInterval(function(){updateChart(); updateBarChart(); updateCostChart(); updateCompChart();intervalCounter = intervalCounter + 1; if(intervalCounter == 39){stopSimulation()}}, updateInterval);
+        var interval = setInterval(function(){updateChart(); updateBarChart(); updateCostChart();intervalCounter = intervalCounter + 1; if(intervalCounter == 39){stopSimulation()}}, updateInterval);
         function stopSimulation(){
           clearInterval(interval)
         }
-
 
         $('#stop').click(function(){
           clearInterval(interval)
