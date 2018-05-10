@@ -280,7 +280,9 @@ def strat(request):
                 'stratLongW':0,
                 'stratLongCAP':0,
                 'stratLongCAPwCost':0,
-                'tradingLongCost':0
+                'tradingLongCost':0,
+                'stratForm' : form,
+                'whatStrat' : strat,
             })
         elif strat == "strat2":
             stockData = getStocksForStrat()
@@ -318,7 +320,9 @@ def strat(request):
                 'stratLongW':0,
                 'stratLongCAP':0,
                 'stratLongCAPwCost':0,
-                'tradingLongCost':0
+                'tradingLongCost':0,
+                'stratForm' : form,
+                'whatStrat' : strat,
             })
         elif strat == "comp":
             stockData = getStocksForStrat()
@@ -365,7 +369,9 @@ def strat(request):
                 'stratLongW':stratLongW,
                 'stratLongCAP':stratLongCAP,
                 'stratLongCAPwCost':stratLongCAPwCost,
-                'tradingLongCost':tradingLongCost
+                'tradingLongCost':tradingLongCost,
+                'stratForm' : form,
+                'whatStrat' : strat,
 
             })
 

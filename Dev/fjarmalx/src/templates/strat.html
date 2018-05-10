@@ -79,7 +79,7 @@
                       {% csrf_token %}
                       {{ stratForm }}
                       <input class="btn-sm btn-outline-danger" type="submit" value="Submit" id="form_button_margin" />
-                      {% if whatStrat == "strat1" or whatStrat == "strat2" %}
+                      {% if whatStrat == "strat1" or "whatStrat" == strat2 %}
                       <input class="btn-sm btn-outline-danger" type="submit" value="Stop Sim." id="stop" />
                       <div class = "col-sm-12" id = "chartContainer" style="height: 300px; width: 100%;"></div>
                       <div class = "col-sm-8" id = "barContainer" style="height: 300px; width: 100%;"></div>
@@ -87,7 +87,6 @@
                       {% endif %}
                       {% if whatStrat == "comp" %}
                       <input class="btn-sm btn-outline-danger" type="submit" value="Stop Sim." id="stop" />
-                      <h1>{{ whatStrat }}</h1>
                       <div class = "col-sm-12" id = "compContainer" style="height: 300px; width: 100%;"></div>
                       {% endif %}
                   </form><br />
@@ -456,13 +455,14 @@
 
         var updateInterval = 1000;
 
-        //updateChart(dataLength);
-        //updateBarChart();
-        //updateCostChart();
+        updateChart(dataLength);
+        updateBarChart();
+        updateCostChart();
+        updateCompChart();
 
         intervalCounter = 0;
-        //var interval = setInterval(function(){updateChart(); updateBarChart(); updateCostChart();intervalCounter = intervalCounter + 1; if(intervalCounter == 39){stopSimulation()}}, updateInterval);
-        var interval = setInterval(function(){updateCompChart();}, updateInterval)
+        var interval = setInterval(function(){updateChart(); updateBarChart(); updateCostChart();updateCompChart();intervalCounter = intervalCounter + 1; if(intervalCounter == 39){stopSimulation()}}, updateInterval);
+        //var interval = setInterval(function(){updateCompChart();}, updateInterval)
         function stopSimulation(){
           clearInterval(interval)
         }
