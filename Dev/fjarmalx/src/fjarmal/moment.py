@@ -124,7 +124,7 @@ def momentumStrat(data, dt, updateInterval, initCAP, comm, rf):
 	for i in range(0,finalTime):
 		tradeSumArr.append(tradeCostSum)
 		if updateCounter == updateInterval:
-			updatePrice = data.iloc[startUpdate:endUpdate, 0:17]
+			updatePrice = data.iloc[startUpdate:endUpdate, 0:16]
 			updateRet = dailyReturns(updatePrice)
 			updateAvgRet = avgRet(updateRet)
 
@@ -153,9 +153,6 @@ def momentumStrat(data, dt, updateInterval, initCAP, comm, rf):
 			tradeCost = tradingCost(updateArr[wCounter], updateArr[wCounter+1], CAP, comm)
 			tradeCostSum = tradeCostSum - tradeCost
 
-			#Test
-			#tradeSumArr.append(tradeCostSum)
-
 
 			#Update counters
 			startUpdate = startUpdate + updateInterval
@@ -163,7 +160,7 @@ def momentumStrat(data, dt, updateInterval, initCAP, comm, rf):
 			updateCounter = 0
 			wCounter = wCounter + 1
 
-		intervalPrice = data.iloc[startCounter:dt, 0:17]
+		intervalPrice = data.iloc[startCounter:dt, 0:16]
 		intervalRet = dailyReturns(intervalPrice)
 		intervalAvgRet, intervalStd, intervalCorr, intervalC = dataInfo(intervalRet)
 		intervalPortAvgRet, intervalPortStdDev = portRet(w, intervalAvgRet, intervalC)
@@ -201,27 +198,31 @@ def momentumStratShort(data, dt, updateInterval, initCAP, comm, rf):
 	endUpdate = updateInterval
 	updateCounter = 0
 
-	finalTime = int(600/dt)
+	finalTime = int(300/dt)
 	intervalArr = [] #Store dt returns
-	updateArr = [[0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,]] #Store weights for each interval
-	wPlotArr = [[0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,]]
+	#updateArr = [[0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,]] #Store weights for each interval
+	#wPlotArr = [[0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,]]
+	updateArr = [[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.333,0.333,0.333]] #Store weights for each interval
+	wPlotArr = [[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.333,0.333,0.333]]
 
 	CAP = initCAP
 	capArr = []
 
 	CAPwCost = initCAP
-	capWcostArr = [];
+	capWcostArr = []
 
 	tradeCostSum = 0
+	tradeSumArr = []
 
 	wCounter = 0;
 
-	w = np.array([0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,])
-
+	#w = np.array([0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,])
+	w = np.array([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.333,0.333,0.333])
 
 	for i in range(0,finalTime):
+		tradeSumArr.append(tradeCostSum)
 		if updateCounter == updateInterval:
-			updatePrice = data.iloc[startUpdate:endUpdate, 0:16]
+			updatePrice = data.iloc[startUpdate:endUpdate, 0:17]
 			updateRet = dailyReturns(updatePrice)
 			updateAvgRet = avgRet(updateRet)
 
@@ -245,7 +246,7 @@ def momentumStratShort(data, dt, updateInterval, initCAP, comm, rf):
 
 			for j in maxIndex:
 				tmpW = w[j] + wDist
-				w[j] = tmpW
+				w[j] = round(tmpW,3)
 
 			updateArr = np.vstack([updateArr, w])
 			tradeCost = tradingCost(updateArr[wCounter], updateArr[wCounter+1], CAP, comm)
@@ -278,6 +279,6 @@ def momentumStratShort(data, dt, updateInterval, initCAP, comm, rf):
 		dt = dt + incDt
 
 
-	return (wPlotArr, intervalArr, capArr, capWcostArr)
+	return (wPlotArr, intervalArr, capArr, capWcostArr, tradeSumArr)
 
 #def momentumStratCap(data, dt, updateInterval, initCAP, comm, rf):

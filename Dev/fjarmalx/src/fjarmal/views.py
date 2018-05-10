@@ -294,7 +294,7 @@ def strat(request):
             updateInterval = int(updateInterval)
 
             indexCAP = indexStrat(indexData, dt, updateInterval, initCAP, comm, rf)
-            stratW, stratRet, stratCAP, stratCAPwCost = momentumStratShort(priceData, dt, updateInterval, initCAP, comm, rf)
+            stratW, stratRet, stratCAP, stratCAPwCost, tradingCost = momentumStratShort(priceData, dt, updateInterval, initCAP, comm, rf)
             stratW = stratW.tolist()
             return render(request, 'strat.html', {
                 'dt' : dt,
@@ -304,7 +304,8 @@ def strat(request):
                 'stratW' : stratW,
                 'stratRet' : stratRet,
                 'stratCAP' : stratCAP,
-                'stratCAPwCost' : stratCAPwCost
+                'stratCAPwCost' : stratCAPwCost,
+                'tradingCost' : tradingCost
             })
 
 def about(request):
