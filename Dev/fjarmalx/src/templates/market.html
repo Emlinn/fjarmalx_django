@@ -77,15 +77,15 @@
           <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-12" id="colstyle">
+                  <div class="col-sm-12" id="form_control">
+                    <form action="/marketport/" method="post">
+                      {% csrf_token %}
+                      {{ rateForm }}
+                      <input class="btn-sm btn-outline-danger" type="submit" value="Submit" id="form_button_margin" />
+                  </form>
+                </div>
                   <canvas class="my-5" id="myChart" width="900" height="450"></canvas>
                 </div>
-                <div class="col-sm-5" id="form_control">
-                  <form action="/marketport/" method="post">
-                    {% csrf_token %}
-                    {{ rateForm }}
-                    <input class="btn-sm btn-outline-danger" type="submit" value="Submit" id="form_button_margin" />
-                </form>
-              </div>
             </div>
             <div class = "row">
               <div class="col-sm-6" id="colstyle">

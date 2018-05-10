@@ -20,16 +20,15 @@ from .forms import CompForm
 NOW = datetime.now()
 
 DEFAULT_SYMBOLS = ['SKEL','EIK','REITIR','SIMINN','GRND','SJOVA','N1','TM','VIS','SYN','EIM','REGINN','HAGA','ORIGO','ICEAIR','MARL']
-#DEFAULT_SYMBOLS = ['SJOVA','N1','TM','VIS','EIM','REGINN','HAGA','ICEAIR','MARL']
 
 DEFAULT_FROMDATE = "1.1.2015"
 DEFAULT_TODATE = NOW.strftime("%d.%m.%Y")
-DEFAULT_FROMDATESTRAT = "1.1.2014" #1.1.2014
-DEFAULT_TODATESTRAT = "1.1.2018" #1.1.2015
-DEFAULT_LENGTH = 996 #995
+DEFAULT_FROMDATESTRAT = "1.1.2014"
+DEFAULT_TODATESTRAT = "1.1.2018"
+DEFAULT_LENGTH = 996
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-e8e26d23-2d9e-45db-a81e-9b65d34877e5'
+    'Authorization': 'GUSER-19132754-96bd-472a-81e8-467ea4cd1da0'
 }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -109,9 +108,15 @@ def home(request, input_symbol=None):
     elif Symbol == "SYN":
         marketValue = "20.632.326.590"
         peRat = 19.00
+    elif Symbol == "EIM":
+        marketValue = "38.447.681.380"
+        peRat = 18.72
     elif Symbol == "REGINN":
         marketValue = "39.500.506.270"
         peRat = 10.43
+    elif Symbol =="HAGA":
+        marketValue = "43.542.186.720"
+        peRat = 14.84
     elif Symbol == "ORIGO":
         marketValue = "9.907.744.544"
         peRat = 29.33

@@ -100,8 +100,10 @@
                               <div class="notify successbox">
                                 <h1>Strategies</h1>
                                 <p>Fill out desired inputs here for Momentum trading Strategies above. Do take note that this may take a while to load. <br /><br />
-                                  Strategy 1 : <br />Momentum trading <br /><br />
-                                  Strategy 2 : <br />Momentum trading with shorting allowed <br /><br />
+                                  Strategy 1 : <br />Momentum trading. <br /><br />
+                                  Strategy 2 : <br />Momentum trading with shorting allowed. <br /><br />
+                                  Strategy 3 : <br />Momentum trading where you sell/buy 10% in each of 3 worst/best perfoming companies. <br /><br />
+                                  Strategy 4 : <br />Momentum trading where you sell/buy 15% in the worst/best, 10% in second worst/best and 5% in the third worst/best.  <br /><br />
                                 </p>
                               </div>
                           </div><!-- @end #w -->
@@ -216,13 +218,13 @@
 
             }
 
-            /*
+            
             if (dataPoints1.length > dataLength) {
               dataPoints1.shift();
               dataPoints2.shift();
               dataPoints3.shift();
             }
-            */
+
 
             chart.options.data[0].legendText = "Evolution Trading Strat. (w/o cost): " + yVal1.toFixed(2);
             chart.options.data[1].legendText = "Evolution Trading Strat. (w. cost): " + yVal2.toFixed(2);
