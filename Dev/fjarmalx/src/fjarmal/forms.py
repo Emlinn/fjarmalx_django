@@ -5,12 +5,9 @@ STRAT_CHOICES= [
     ('strat1', 'Strategy 1'),
     ('strat2', 'Strategy 2'),
     ('strat3', 'Strategy 3'),
-<<<<<<< Updated upstream
     ('comp', 'Strat. Compare')
     ]
-=======
-]
->>>>>>> Stashed changes
+
 
 DATE_CHOICES = [
     (10, '10 days'),

@@ -266,15 +266,21 @@ def strat(request):
             stratW, stratRet, stratCAP, stratCAPwCost, tradingCost = momentumStrat(priceData, dt, updateInterval, initCAP, comm, rf)
             stratW = stratW.tolist()
             return render(request, 'strat.html', {
+
                 'dt' : dt,
                 'indexCAP' : indexCAP,
-                'stratForm' : form,
-                'INITCAPAS' : initCAP,
                 'stratW' : stratW,
-                'stratRet' : stratRet,
                 'stratCAP' : stratCAP,
                 'stratCAPwCost' : stratCAPwCost,
-                'tradingCost' : tradingCost
+                'tradingCost' : tradingCost,
+                'stratMidW' : 0,
+                'stratMidCAP' : 0,
+                'stratMidCAPwCost' : 0,
+                'tradingMidCost' :0,
+                'stratLongW':0,
+                'stratLongCAP':0,
+                'stratLongCAPwCost':0,
+                'tradingLongCost':0
             })
         elif strat == "strat2":
             stockData = getStocksForStrat()
@@ -297,21 +303,30 @@ def strat(request):
             stratW, stratRet, stratCAP, stratCAPwCost, tradingCost = momentumStratShort(priceData, dt, updateInterval, initCAP, comm, rf)
             stratW = stratW.tolist()
             return render(request, 'strat.html', {
+
                 'dt' : dt,
                 'indexCAP' : indexCAP,
-                'stratForm' : form,
-                'INITCAPAS' : initCAP,
                 'stratW' : stratW,
                 'stratRet' : stratRet,
                 'stratCAP' : stratCAP,
                 'stratCAPwCost' : stratCAPwCost,
-                'tradingCost' : tradingCost
+                'tradingCost' : tradingCost,
+                'stratMidW' : 0,
+                'stratMidCAP' : 0,
+                'stratMidCAPwCost' : 0,
+                'tradingMidCost' :0,
+                'stratLongW':0,
+                'stratLongCAP':0,
+                'stratLongCAPwCost':0,
+                'tradingLongCost':0
             })
         elif strat == "comp":
             stockData = getStocksForStrat()
             df = pd.DataFrame.from_dict(stockData, orient = 'columns') #Max. 830 rows and 9 columns for current selection
-            indexDf =  pd.read_csv('fjarmal/index.csv', encoding = 'latin-1')
             priceData = df.iloc[300:900, 0:16]
+
+            indexDf =  pd.read_csv('fjarmal/index.csv', encoding = 'latin-1')
+            indexData = indexDf.iloc[300:900, 1:2]
 
             comm = request.GET.get('comission', COMISSION)
             comm = float(comm)
@@ -328,6 +343,7 @@ def strat(request):
             updateLongInterval = 100;
 
             indexCAP = indexStrat(indexData, dt, updateInterval, initCAP, comm, rf)
+
             stratW, stratRet, stratCAP, stratCAPwCost, tradingCost = momentumStrat(priceData, dt, updateInterval, initCAP, comm, rf)
             stratMidW, stratMidRet, stratMidCAP, stratMidCAPwCost, tradingMidCost = momentumStrat(priceData, dt, updateMidInterval, initCAP, comm, rf)
             stratLongW, stratLongRet, stratLongCAP, stratLongCAPwCost, tradingLongCost = momentumStrat(priceData, dt, updateLongInterval, initCAP, comm, rf)
@@ -335,9 +351,9 @@ def strat(request):
             stratMidW = stratMidW.tolist()
             stratLongW = stratLongW.tolist()
             return render(request, 'strat.html', {
-                
+
                 'dt' : dt,
-                'indexCAP' : indexCAP,
+                'indexCAP':indexCAP,
                 'stratW' : stratW,
                 'stratCAP' : stratCAP,
                 'stratCAPwCost' : stratCAPwCost,

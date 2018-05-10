@@ -79,8 +79,16 @@
                       {% csrf_token %}
                       {{ stratForm }}
                       <input class="btn-sm btn-outline-danger" type="submit" value="Submit" id="form_button_margin" />
-                      {% if whatStrat == strat1 or whatStrat == strat2 %}
+                      {% if whatStrat == "strat1" or whatStrat == "strat2" %}
                       <input class="btn-sm btn-outline-danger" type="submit" value="Stop Sim." id="stop" />
+                      <div class = "col-sm-12" id = "chartContainer" style="height: 300px; width: 100%;"></div>
+                      <div class = "col-sm-8" id = "barContainer" style="height: 300px; width: 100%;"></div>
+                      <div class = "col-sm-4" id = "costContainer" style="height: 300px; width: 100%;"></div>
+                      {% endif %}
+                      {% if whatStrat == "comp" %}
+                      <input class="btn-sm btn-outline-danger" type="submit" value="Stop Sim." id="stop" />
+                      <h1>{{ whatStrat }}</h1>
+                      <div class = "col-sm-12" id = "compContainer" style="height: 300px; width: 100%;"></div>
                       {% endif %}
                   </form><br />
                   </div>
@@ -95,9 +103,7 @@
                               </div>
                           </div><!-- @end #w -->
                           {% endif %}
-                          <div class = "col-sm-12" id = "chartContainer" style="height: 300px; width: 100%;"></div>
-                          <div class = "col-sm-8" id = "barContainer" style="height: 300px; width: 100%;"></div>
-                          <div class = "col-sm-4" id = "costContainer" style="height: 300px; width: 100%;"></div>
+
                   </div>
               </div>
             </div>
@@ -125,18 +131,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
     <script>
 
-
       var dt = {{ dt }}
       var indexCAP = {{ indexCAP }}
+      //Short update Interval
       var stratW = {{ stratW }}
-      var stratRet = {{ stratRet }}
       var stratCAP = {{ stratCAP }}
       var stratCAPwCost = {{ stratCAPwCost }}
       var tradingCost = {{ tradingCost }}
+      //Mid update Interval
+      var stratMidW = {{ stratMidW }}
+      var stratMidCAP = {{ stratMidCAP }}
+      var stratMidCAPwCost = {{ stratMidCAPwCost }}
+      var tradingMidCost = {{ tradingMidCost }}
+      //Long update interval
+      var stratLongW = {{ stratLongW }}
+      var stratLongCAP = {{ stratLongCAP }}
+      var stratLongCAPwCost = {{ stratLongCAPwCost }}
+      var tradingLongCost = {{ tradingLongCost }}
 
 
       window.onload = function(){
-        //RETURN PLOT************************************************************************
+        //STRATEGY COMPARISSON************************************************************************
         var dataPoints1 = [];
         var dataPoints2 = [];
         var dataPoints3 = [];
@@ -358,18 +373,96 @@
 
         };
 
+        //UPDATE INTERVAL COMPARISSON***********************************************************
+        var compPoints1 = [];
+        var compPoints2 = [];
+        var compPoints3 = [];
+
+        var chart = new CanvasJS.Chart("compContainer", {
+          title :{
+            text: "Interval Comparisson",
+            fontFamily: "tahoma",
+            fontSize: 15,
+            fontWeight: "normal"
+          },
+          axisY: {
+            includeZero: false
+          },
+          legend: {
+            verticalAlign: "top",
+            fontSize: 10
+          },
+          data: [{
+            type: "line",
+            showInLegend: true,
+            dataPoints: compPoints1,
+            markerType: "none"
+          },{
+            type: "line",
+            showInLegend: true,
+            dataPoints: compPoints2,
+            markerType: "none"
+          },{
+            type: "line",
+            showInLegend: true,
+            dataPoints: compPoints3,
+            markerType: "none"
+          }]
+        });
+
+
+        var updateCompChart = function (count) {
+
+          count = count || 1;
+
+          for (var j = 0; j < count; j++) {
+            yVal1 = stratCAPwCost[xVal];
+            yVal2 = stratMidCAPwCost[xVal];
+            yVal3 = stratLongCAPwCost[xVal];
+
+            compPoints1.push({
+              x: xVal * dt,
+              y: yVal1
+            });
+            compPoints2.push({
+              x: xVal * dt,
+              y: yVal2
+            });
+            compPoints3.push({
+              x: xVal * dt,
+              y: yVal3
+            });
+
+            xVal++;
+
+
+          }
+
+          if (compPoints1.length > dataLength) {
+            dataPoints1.shift();
+            dataPoints2.shift();
+            dataPoints3.shift();
+          }
+
+          chart.options.data[0].legendText = "10-day update interval: " + yVal1.toFixed(2);
+          chart.options.data[1].legendText = "50-day update interval: " + yVal2.toFixed(2);
+          chart.options.data[2].legendText = "100-day update interval: " + yVal3.toFixed(2);
+          chart.render();
+
+        };
+
 
         //START SIMULATION**********************************************************************
 
         var updateInterval = 1000;
 
-        updateChart(dataLength);
-        updateBarChart();
-        updateCostChart();
+        //updateChart(dataLength);
+        //updateBarChart();
+        //updateCostChart();
 
         intervalCounter = 0;
-        var interval = setInterval(function(){updateChart(); updateBarChart(); updateCostChart();intervalCounter = intervalCounter + 1; if(intervalCounter == 39){stopSimulation()}}, updateInterval);
-
+        //var interval = setInterval(function(){updateChart(); updateBarChart(); updateCostChart();intervalCounter = intervalCounter + 1; if(intervalCounter == 39){stopSimulation()}}, updateInterval);
+        var interval = setInterval(function(){updateCompChart();}, updateInterval)
         function stopSimulation(){
           clearInterval(interval)
         }
