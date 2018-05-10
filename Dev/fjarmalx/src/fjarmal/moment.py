@@ -397,3 +397,104 @@ def momentumStratCap(data, dt, updateInterval, initCAP, comm, rf):
 
 
 	return (wPlotArr, intervalArr, capArr, capWcostArr, tradeSumArr)
+
+def momentumStratWeight(data, dt, updateInterval, initCAP, comm, rf):
+
+	#Var. for dt return calculations
+	incDt = dt
+	startCounter = 0
+	endCounter = dt
+
+	#Var. for updating calculations
+	startUpdate = 0
+	endUpdate = updateInterval
+	updateCounter = 0
+
+	finalTime = int(300/dt)
+	intervalArr = [] #Store dt returns
+	updateArr = [[0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625]] #Store weights for each interval
+	wPlotArr = [[0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625]]
+	#updateArr = [[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.333,0.333,0.333]] #Store weights for each interval
+	#wPlotArr = [[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.333,0.333,0.333]]
+
+	CAP = initCAP
+	capArr = []
+
+	CAPwCost = initCAP
+	capWcostArr = [];
+	capWcostArr.append(initCAP)
+
+	tradeCostSum = 0
+	tradeSumArr = []
+
+	wCounter = 0;
+
+	w = np.array([0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625])
+	#w = np.array([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.333,0.333,0.333])
+
+
+	for i in range(0,finalTime):
+		tradeSumArr.append(tradeCostSum)
+		if updateCounter == updateInterval:
+			updatePrice = data.iloc[startUpdate:endUpdate, 0:16]
+			updateRet = dailyReturns(updatePrice)
+			updateAvgRet = avgRet(updateRet)
+
+			#Updating strategy calculations
+			minR = updateAvgRet.nsmallest(3)
+			maxR = updateAvgRet.nlargest(3)
+			minIndex = minR.index.values
+			maxIndex = maxR.index.values
+
+			wArr = []
+			wSum = 0
+			wDist = 0
+			perc = 0.15
+
+			for k in minIndex:
+				sell = w[k]*perc
+				wArr.append(sell)
+				w[k] = w[k] - sell
+				perc = perc - 0.05
+
+			count = 0
+			for j in maxIndex:
+				tmpW = w[j] + wArr[count]
+				w[j] = round(tmpW, 3)
+				count = count + 1
+
+			updateArr = np.vstack([updateArr, w])
+			tradeCost = tradingCost(updateArr[wCounter], updateArr[wCounter+1], CAP, comm)
+			tradeCostSum = tradeCostSum - tradeCost
+
+
+			#Update counters
+			startUpdate = startUpdate + updateInterval
+			endUpdate = endUpdate + updateInterval
+			updateCounter = 0
+			wCounter = wCounter + 1
+
+		intervalPrice = data.iloc[startCounter:dt, 0:16]
+		intervalRet = dailyReturns(intervalPrice)
+		intervalAvgRet, intervalStd, intervalCorr, intervalC = dataInfo(intervalRet)
+		intervalPortAvgRet, intervalPortStdDev = portRet(w, intervalAvgRet, intervalC)
+		CAP = CAP + (CAP*intervalPortAvgRet)
+		CAPwCost = CAP + tradeCostSum
+
+		CAP = round(CAP,2)
+		CAPwCost = round(CAPwCost,2)
+
+		wPlotArr = np.vstack([wPlotArr, w])
+		intervalArr.append(intervalPortAvgRet)
+		capArr.append(CAP)
+		capWcostArr.append(CAPwCost)
+
+
+
+		#Update Counters
+		updateCounter = updateCounter + incDt
+		startCounter = startCounter + incDt
+		dt = dt + incDt
+
+
+	return (wPlotArr, intervalArr, capArr, capWcostArr, tradeSumArr)
