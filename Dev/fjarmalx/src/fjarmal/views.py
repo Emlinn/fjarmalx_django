@@ -28,7 +28,7 @@ DEFAULT_TODATESTRAT = "1.1.2018" #1.1.2015
 DEFAULT_LENGTH = 996 #995
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-3718650f-c325-4446-ad74-dfa43ae2b307'
+    'Authorization': 'GUSER-aca3c638-a13a-476b-8c0d-05b66f196a99'
 }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -179,8 +179,10 @@ def market(request):
         #Convert to list
         R = expRet.tolist()
         stdDev = sigma.tolist()
+        minW = min_w.tolist()
         ERP = ERP.tolist()
         minStdDev = minSigma.tolist()
+        mpW = w_mp.tolist()
         rMP = r_mp.tolist()
         stdDevMP = sigma_mp.tolist()
         reqER = ER.tolist()
@@ -196,9 +198,11 @@ def market(request):
             'R' : R,
             'stdDev' : stdDev,
             'ERP' : ERP,
+            'minW':minW,
             'minStdDev' : minStdDev,
             'rMP' : rMP,
             'stdDevMP' : stdDevMP,
+            'mpW':mpW,
             'reqRet' : reqER[0],
             'reqStdDev' : reqStdDev,
             'CML' : capMarketLine[0],

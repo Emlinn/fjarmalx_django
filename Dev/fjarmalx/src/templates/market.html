@@ -91,12 +91,17 @@
                     {{ rateForm }}
                     <input class="btn-sm btn-outline-danger" type="submit" value="Submit" id="form_button_margin" />
                 </form>
-                </div>
-                <div id = "dataTest">
-                  <p><p>
-                </div>
               </div>
             </div>
+            <div class = "row">
+              <div class="col-sm-6" id="colstyle">
+                <canvas class="my-5" id="minWeightChart" width="900" height="450"></canvas>
+              </div>
+              <div class="col-sm-6" id="colstyle">
+                <canvas class="my-5" id="marketChart" width="900" height="450"></canvas>
+              </div>
+            </div>
+          </div>
         </main>
       </div>
     </div>
@@ -123,8 +128,10 @@
     //var stockTicker = {{ stockTicker }}
     var R = {{ R }}
     var stdDev = {{ stdDev }}
+    var minW = {{ minW }}
     var ERP = {{ ERP }}
     var minStdDev = {{ minStdDev }}
+    var mpW = {{ mpW }}
     var rMP = {{ rMP }}
     var stdDevMP = {{ stdDevMP }}
     var reqRet = {{ reqRet }}
@@ -271,10 +278,82 @@
       })
 
       return restFront;
-      console.log(restRet)
-
 
     }
+
+// Bar chart
+new Chart(document.getElementById("minWeightChart"), {
+    type: 'bar',
+    data: {
+      labels: ['SKEL','EIK','REITIR','SIMINN','GRND','SJOVA','N1','TM','VIS','SYN','EIM','REGINN','HAGA','ORIGO','ICEAIR','MARL'],
+      datasets: [
+        {
+          label: "Weight",
+          backgroundColor: ["#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd"],
+          data: [minW[0]*100,
+                minW[1]*100,
+                minW[2]*100,
+                minW[3]*100,
+                minW[4]*100,
+                minW[5]*100,
+                minW[6]*100,
+                minW[7]*100,
+                minW[8]*100,
+                minW[9]*100,
+                minW[10]*100,
+                minW[11]*100,
+                minW[12]*100,
+                minW[13]*100,
+                minW[14]*100,
+                minW[15]*100]
+        }
+      ]
+    },
+    options: {
+      legend: { display: false },
+      title: {
+        display: true,
+        text: 'Min. Variance Asset Allocation'
+      }
+    }
+});
+
+// Bar chart
+new Chart(document.getElementById("marketChart"), {
+type: 'bar',
+data: {
+  labels: ['SKEL','EIK','REITIR','SIMINN','GRND','SJOVA','N1','TM','VIS','SYN','EIM','REGINN','HAGA','ORIGO','ICEAIR','MARL'],
+  datasets: [
+    {
+      label: "Weight",
+      backgroundColor: ["#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd","#3e95cd"],
+      data: [mpW[0]*100,
+            mpW[1]*100,
+            mpW[2]*100,
+            mpW[3]*100,
+            mpW[4]*100,
+            mpW[5]*100,
+            mpW[6]*100,
+            mpW[7]*100,
+            mpW[8]*100,
+            mpW[9]*100,
+            mpW[10]*100,
+            mpW[11]*100,
+            mpW[12]*100,
+            mpW[13]*100,
+            mpW[14]*100,
+            mpW[15]*100]
+    }
+  ]
+},
+options: {
+  legend: { display: false },
+  title: {
+    display: true,
+    text: 'Market Portfolio Asset Allocation'
+  }
+}
+});
 
     </script>
   </body>

@@ -214,6 +214,8 @@
             });
 
             xVal++;
+
+
           }
 
           if (dataPoints1.length > dataLength) {
@@ -226,6 +228,7 @@
           chart.options.data[1].legendText = "Evolution Trading Strat. (w. cost): " + yVal2.toFixed(2);
           chart.options.data[2].legendText = "OMXI 8 Index " + yVal3.toFixed(2);
           chart.render();
+
         };
         //BAR CHART*****************************************************************************
           var wData1;
@@ -308,7 +311,6 @@
               wData15 = stratW[counter][14];
               wData16 = stratW[counter][15];
 
-              wData1 = wData1.toFixed(3)
 
               dps[i] = {label: "SKEL ", y:wData1};
               dps[i+1] = {label: "EIK ", y:wData2};
@@ -377,7 +379,13 @@
         updateBarChart();
         updateCostChart();
 
-        var interval = setInterval(function(){updateChart(); updateBarChart(); updateCostChart();}, updateInterval);
+        intervalCounter = 0;
+        var interval = setInterval(function(){updateChart(); updateBarChart(); updateCostChart();intervalCounter = intervalCounter + 1; if(intervalCounter == 39){stopSimulation()}}, updateInterval);
+
+        function stopSimulation(){
+          clearInterval(interval)
+        }
+
 
         $('#stop').click(function(){
           clearInterval(interval)
