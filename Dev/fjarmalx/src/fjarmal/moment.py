@@ -31,7 +31,7 @@ def avgRet(dailyRet):
 
 #Calculate portfolio risk and return
 def portRet(w, expR, C):
-	
+
 	portR = expR @ w;
 	portStd = np.sqrt(w.T @ C @ w);
 	return (portR, portStd)
@@ -61,7 +61,7 @@ def indexStrat(data, dt, updateInterval, initCAP, comm, rf):
 	startCounter = 0
 	endCounter = dt
 
-	finalTime = int(600/dt)
+	finalTime = int(300/dt)
 
 	CAP = initCAP
 	capArr = []
@@ -79,16 +79,14 @@ def indexStrat(data, dt, updateInterval, initCAP, comm, rf):
 		capArr.append(CAP)
 
 		startCounter = startCounter + incDt
-		dt = dt + incDt		
+		dt = dt + incDt
 
 
 	return capArr
 
 
-
-
 #Momentum strategy - 1: For each updating period we sell the three lowest performing stocks
-#and invest in the three highest performing stocks. 
+#and invest in the three highest performing stocks.
 def momentumStrat(data, dt, updateInterval, initCAP, comm, rf):
 
 	#Var. for dt return calculations
@@ -101,7 +99,7 @@ def momentumStrat(data, dt, updateInterval, initCAP, comm, rf):
 	endUpdate = updateInterval
 	updateCounter = 0
 
-	finalTime = int(600/dt)
+	finalTime = int(300/dt)
 	intervalArr = [] #Store dt returns
 	#updateArr = [[0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625]] #Store weights for each interval
 	#wPlotArr = [[0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625,0.0625]]
@@ -124,6 +122,7 @@ def momentumStrat(data, dt, updateInterval, initCAP, comm, rf):
 
 
 	for i in range(0,finalTime):
+		tradeSumArr.append(tradeCostSum)
 		if updateCounter == updateInterval:
 			updatePrice = data.iloc[startUpdate:endUpdate, 0:17]
 			updateRet = dailyReturns(updatePrice)
@@ -148,12 +147,15 @@ def momentumStrat(data, dt, updateInterval, initCAP, comm, rf):
 
 			for j in maxIndex:
 				tmpW = w[j] + wDist
-				w[j] = tmpW
+				w[j] = round(tmpW, 3)
 
 			updateArr = np.vstack([updateArr, w])
 			tradeCost = tradingCost(updateArr[wCounter], updateArr[wCounter+1], CAP, comm)
 			tradeCostSum = tradeCostSum - tradeCost
-			
+
+			#Test
+			#tradeSumArr.append(tradeCostSum)
+
 
 			#Update counters
 			startUpdate = startUpdate + updateInterval
@@ -176,7 +178,7 @@ def momentumStrat(data, dt, updateInterval, initCAP, comm, rf):
 		capArr.append(CAP)
 		capWcostArr.append(CAPwCost)
 
-		tradeSumArr.append(tradeCostSum)
+
 
 		#Update Counters
 		updateCounter = updateCounter + incDt
@@ -279,9 +281,3 @@ def momentumStratShort(data, dt, updateInterval, initCAP, comm, rf):
 	return (wPlotArr, intervalArr, capArr, capWcostArr)
 
 #def momentumStratCap(data, dt, updateInterval, initCAP, comm, rf):
-
-
-
-
-
-

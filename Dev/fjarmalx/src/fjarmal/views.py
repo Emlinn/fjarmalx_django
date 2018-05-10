@@ -245,8 +245,8 @@ def strat(request):
             stockData = getStocksForStrat()
             df = pd.DataFrame.from_dict(stockData, orient = 'columns') #Max. 830 rows and 9 columns for current selection
             indexDf =  pd.read_csv('fjarmal/index.csv', encoding = 'latin-1')
-            priceData = df.iloc[300:900, 0:16]
-            indexData = indexDf.iloc[300:900, 1:2]
+            priceData = df.iloc[300:600, 0:16]
+            indexData = indexDf.iloc[300:600, 1:2]
 
             comm = request.GET.get('comission', COMISSION)
             comm = float(comm)
