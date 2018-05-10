@@ -18,7 +18,7 @@ from .forms import StratForm
 
 NOW = datetime.now()
 
-DEFAULT_SYMBOLS = ['SKEL','EIK','REITIR','SIMINN','GRND','SJOVA','N1','TM','VIS','SYN','EIM','EIM','REGINN','HAGA','ORIGO','ICEAIR','MARL']
+DEFAULT_SYMBOLS = ['SKEL','EIK','REITIR','SIMINN','GRND','SJOVA','N1','TM','VIS','SYN','EIM','REGINN','HAGA','ORIGO','ICEAIR','MARL']
 #DEFAULT_SYMBOLS = ['SJOVA','N1','TM','VIS','EIM','REGINN','HAGA','ICEAIR','MARL']
 
 DEFAULT_FROMDATE = "1.1.2015"
@@ -28,7 +28,7 @@ DEFAULT_TODATESTRAT = "1.1.2018" #1.1.2015
 DEFAULT_LENGTH = 996 #995
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-aca3c638-a13a-476b-8c0d-05b66f196a99'
+    'Authorization': 'GUSER-4d701a51-374b-437b-ad78-dbdaa0b2eb27'
 }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -307,6 +307,52 @@ def strat(request):
                 'stratCAPwCost' : stratCAPwCost,
                 'tradingCost' : tradingCost
             })
+        elif strat == "comp":
+            stockData = getStocksForStrat()
+            df = pd.DataFrame.from_dict(stockData, orient = 'columns') #Max. 830 rows and 9 columns for current selection
+            indexDf =  pd.read_csv('fjarmal/index.csv', encoding = 'latin-1')
+            priceData = df.iloc[300:900, 0:16]
+
+            comm = request.GET.get('comission', COMISSION)
+            comm = float(comm)
+            initCAP = request.GET.get('capital', INITIAL_CAPITAL)
+            initCAP = int(initCAP)
+            rf = request.GET.get('rate', DEFAULT_RF)
+            rf = float(rf)
+            strat = request.GET.get('pick_strat', DEFAULT_STRAT)
+            updateInterval = request.GET.get('pick_date', DEFAULT_INTERVAL)
+            updateInterval = int(updateInterval)
+
+            updateInterval = 10;
+            updateMidInterval = 50;
+            updateLongInterval = 100;
+
+            indexCAP = indexStrat(indexData, dt, updateInterval, initCAP, comm, rf)
+            stratW, stratRet, stratCAP, stratCAPwCost, tradingCost = momentumStrat(priceData, dt, updateInterval, initCAP, comm, rf)
+            stratMidW, stratMidRet, stratMidCAP, stratMidCAPwCost, tradingMidCost = momentumStrat(priceData, dt, updateMidInterval, initCAP, comm, rf)
+            stratLongW, stratLongRet, stratLongCAP, stratLongCAPwCost, tradingLongCost = momentumStrat(priceData, dt, updateLongInterval, initCAP, comm, rf)
+            stratW = stratW.tolist()
+            stratMidW = stratMidW.tolist()
+            stratLongW = stratLongW.tolist()
+            return render(request, 'strat.html', {
+                
+                'dt' : dt,
+                'indexCAP' : indexCAP,
+                'stratW' : stratW,
+                'stratCAP' : stratCAP,
+                'stratCAPwCost' : stratCAPwCost,
+                'tradingCost' : tradingCost,
+                'stratMidW' : stratMidW,
+                'stratMidCAP' : stratMidCAP,
+                'stratMidCAPwCost' : stratMidCAPwCost,
+                'tradingMidCost' : tradingMidCost,
+                'stratLongW':stratLongW,
+                'stratLongCAP':stratLongCAP,
+                'stratLongCAPwCost':stratLongCAPwCost,
+                'tradingLongCost':tradingLongCost
+
+            })
+
 
 def about(request):
      return render(request, 'about.html')

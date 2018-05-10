@@ -5,6 +5,7 @@ STRAT_CHOICES= [
     ('strat1', 'Strategy 1'),
     ('strat2', 'Strategy 2'),
     ('strat3', 'Strategy 3'),
+    ('comp', 'Strat. Compare')
     ]
 
 DATE_CHOICES = [
