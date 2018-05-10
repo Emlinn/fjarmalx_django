@@ -51,6 +51,12 @@
                   Strategies
                 </a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/comp/">
+                  <span data-feather="bar-chart-2"></span>
+                  Comparisson
+                </a>
+              </li>
             <li class="nav-item">
               <a class="nav-link" href="/about/">
                 <span data-feather="github"></span>
@@ -81,18 +87,11 @@
                       <input class="btn-sm btn-outline-danger" type="submit" value="Submit" id="form_button_margin" />
                       <input class="btn-sm btn-outline-danger" type="submit" value="Stop Sim." id="stop" />
                   </form><br />
-                  {% if whatStrat == "strat1" or whatStrat == "strat2" %}
+                  {% if whatStrat == "strat1" or whatStrat == "strat2" or whatStrat == "strat3" %}
                   <div class = "col-sm-12" id = "chartContainer" style="height: 300px; width: 100%;"></div>
                   <div class = "row">
                     <div class = "col-sm-8" id = "barContainer" style="height: 300px; width: 100%;"></div>
                     <div class = "col-sm-4" id = "costContainer" style="height: 300px; width: 100%;"></div>
-                  </div>
-                  {% elif whatStrat == "comp" %}
-                  <div class = "col-sm-12" id = "compContainer" style="height: 300px; width: 100%;"></div>
-                  <div class = "col-sm-12" id = "chartContainer" style="height: 0px; width: 0px; display: none;"></div>
-                  <div class = "row">
-                    <div class = "col-sm-8" id = "barContainer" style="height: 0px; width: 0px; display: none;"></div>
-                    <div class = "col-sm-4" id = "costContainer" style="height: 0px; width: 0px; display: none;"></div>
                   </div>
                   {% endif %}
                   </div>
@@ -142,15 +141,6 @@
       var stratCAPwCost = {{ stratCAPwCost }}
       var tradingCost = {{ tradingCost }}
       //Mid update Interval
-      var stratMidW = {{ stratMidW }}
-      var stratMidCAP = {{ stratMidCAP }}
-      var stratMidCAPwCost = {{ stratMidCAPwCost }}
-      var tradingMidCost = {{ tradingMidCost }}
-      //Long update interval
-      var stratLongW = {{ stratLongW }}
-      var stratLongCAP = {{ stratLongCAP }}
-      var stratLongCAPwCost = {{ stratLongCAPwCost }}
-      var tradingLongCost = {{ tradingLongCost }}
 
 
 
@@ -385,96 +375,16 @@
       }
 
         //UPDATE INTERVAL COMPARISSON***********************************************************
-        if (whatStrat === "comp") {
-          var compPoints1 = [];
-          var compPoints2 = [];
-          var compPoints3 = [];
 
-
-          var chartComp = new CanvasJS.Chart("compContainer", {
-            title :{
-              text: "Interval Comparisson",
-              fontFamily: "tahoma",
-              fontSize: 15,
-              fontWeight: "normal"
-            },
-            axisY: {
-              includeZero: false
-            },
-            legend: {
-              verticalAlign: "top",
-              fontSize: 10
-            },
-            data: [{
-              type: "line",
-              showInLegend: true,
-              dataPoints: compPoints1,
-              markerType: "none"
-            },{
-              type: "line",
-              showInLegend: true,
-              dataPoints: compPoints2,
-              markerType: "none"
-            },{
-              type: "line",
-              showInLegend: true,
-              dataPoints: compPoints3,
-              markerType: "none"
-            }]
-          });
-
-          var xVall = 0;
-          var yVall1 = 0;
-          var yVall2 = 0;
-          var yVall3 = 0;
-
-          var updateCompChart = function (count) {
-
-            count = count || 1;
-
-            for (var j = 0; j < count; j++) {
-              yVall1 = stratCAPwCost[xVall];
-              yVall2 = stratMidCAPwCost[xVall];
-              yVall3 = stratLongCAPwCost[xVall];
-
-              compPoints1.push({
-                x: xVall * dt,
-                y: yVall1
-              });
-              compPoints2.push({
-                x: xVall * dt,
-                y: yVall2
-              });
-              compPoints3.push({
-                x: xVall * dt,
-                y: yVall3
-              });
-
-              xVall++;
-
-            }
-
-            chartComp.options.data[0].legendText = "10-day update interval: " + yVall1.toFixed(2);
-            chartComp.options.data[1].legendText = "50-day update interval: " + yVall2.toFixed(2);
-            chartComp.options.data[2].legendText = "100-day update interval: " + yVall3.toFixed(2);
-            chartComp.render();
-
-          };
-      }
 
         //START SIMULATION**********************************************************************
 
         var updateInterval = 1000;
-        if(whatStrat === "strat1" || "strat2") {
-          updateChart(dataLength);
-          updateBarChart();
-          updateCostChart();
-          var interval = setInterval(function(){updateChart(); updateBarChart(); updateCostChart();intervalCounter = intervalCounter + 1; if(intervalCounter == 39){stopSimulation()}}, updateInterval);
-        }
-        if (whatStrat === "comp") {
-          updateCompChart();
-          var interval = setInterval(function(){updateChart(); updateBarChart(); updateCostChart();updateCompChart();intervalCounter = intervalCounter + 1; if(intervalCounter == 39){stopSimulation()}}, updateInterval);
-        }
+        updateChart(dataLength);
+        updateBarChart();
+        updateCostChart();
+
+        var interval = setInterval(function(){updateChart(); updateBarChart(); updateCostChart();intervalCounter = intervalCounter + 1; if(intervalCounter == 39){stopSimulation()}}, updateInterval);
 
         intervalCounter = 0;
         //var interval = setInterval(function(){updateChart(); updateBarChart(); updateCostChart(); updateCompChart();intervalCounter = intervalCounter + 1; if(intervalCounter == 39){stopSimulation()}}, updateInterval);

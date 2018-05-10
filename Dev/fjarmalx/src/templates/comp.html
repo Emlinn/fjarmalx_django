@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    {% load static %}
+    <link rel="icon" href="../../../../favicon.ico">
+
+    <title>Fjármál X</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+  </head>
+
+  <body>
+    <nav class="navbar navbar-dark sticky-top  flex-md-nowrap p-0">
+      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Fjármál X</a>
+      <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+          <a class="nav-link" href="/admin">Admin</a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <nav class="col-md-2 d-none d-md-block sidebar">
+          <div class="sidebar-sticky" id="sidebarOverwrite">
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a class="nav-link" href="/">
+                  <span data-feather="box"></span>
+                  Home <span class="sr-only">(current)</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/marketport/">
+                  <span data-feather="activity"></span>
+                  Portfolio
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/strat/">
+                  <span data-feather="bar-chart-2"></span>
+                  Strategies
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="/comp/">
+                  <span data-feather="bar-chart-2"></span>
+                  Comparisson
+                </a>
+              </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <span data-feather="github"></span>
+                About us
+              </a>
+            </li>
+            </ul>
+          </div>
+        </nav>
+
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4" id="maindiv">
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h1 class="h2">Comparisson</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+              <div class="btn-group dropleft" id="bootstrap-overrides">
+              </div>
+              <div id=buttonOverwrite>
+            </div>
+            </div>
+          </div>
+
+          <div class="container-fluid">
+            <div class="row">
+                  <div class="col-sm-12" id="form_control">
+                    <form action="/comp/" method="post">
+                      {% csrf_token %}
+                      {{ CompForm }}
+                      <input class="btn-sm btn-outline-danger" type="submit" value="Submit" id="form_button_margin" />
+                  </form><br />
+                  {% if whatStrat == "comp" %}
+                  <input class="btn-sm btn-outline-danger" type="submit" value="Stop Sim." id="stop" />
+                  <div class = "col-sm-12" id = "compContainer" style="height: 300px; width: 100%;"></div>
+                  {% endif %}
+                  </div>
+                    {% if whatStrat == 0 %}
+                          <div id="w">
+                              <div class="notify successbox">
+                                <h1>Strategies</h1>
+                                <p>Fill out desired inputs here for Momentum trading Strategies above. Do take note that this may take a while to load. <br /><br />
+                                  Strategy 1 : <br />Momentum trading <br /><br />
+                                  Strategy 2 : <br />Momentum trading with shorting allowed <br /><br />
+                                </p>
+                              </div>
+                          </div><!-- @end #w -->
+                          {% endif %}
+                  </div>
+              </div>
+            </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="../../../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+    <script>
+      feather.replace()
+    </script>
+
+    <!-- Graphs -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+    <script>
+
+      var dt = {{ dt }}
+      var indexCAP = {{ indexCAP }}
+      //Short update Interval
+      var stratW = {{ stratW }}
+      var stratCAP = {{ stratCAP }}
+      var stratCAPwCost = {{ stratCAPwCost }}
+      var tradingCost = {{ tradingCost }}
+      //Mid update Interval
+      var stratMidW = {{ stratMidW }}
+      var stratMidCAP = {{ stratMidCAP }}
+      var stratMidCAPwCost = {{ stratMidCAPwCost }}
+      var tradingMidCost = {{ tradingMidCost }}
+      //Long update interval
+      var stratLongW = {{ stratLongW }}
+      var stratLongCAP = {{ stratLongCAP }}
+      var stratLongCAPwCost = {{ stratLongCAPwCost }}
+      var tradingLongCost = {{ tradingLongCost }}
+
+
+      window.onload = function(){
+        //STRATEGY COMPARISSON************************************************************************
+
+        //UPDATE INTERVAL COMPARISSON***********************************************************
+          var compPoints1 = [];
+          var compPoints2 = [];
+          var compPoints3 = [];
+
+          var chartComp = new CanvasJS.Chart("compContainer", {
+            title :{
+              text: "Interval Comparisson",
+              fontFamily: "tahoma",
+              fontSize: 15,
+              fontWeight: "normal"
+            },
+            axisY: {
+              includeZero: false
+            },
+            legend: {
+              verticalAlign: "top",
+              fontSize: 10
+            },
+            data: [{
+              type: "line",
+              showInLegend: true,
+              dataPoints: compPoints1,
+              markerType: "none"
+            },{
+              type: "line",
+              showInLegend: true,
+              dataPoints: compPoints2,
+              markerType: "none"
+            },{
+              type: "line",
+              showInLegend: true,
+              dataPoints: compPoints3,
+              markerType: "none"
+            }]
+          });
+
+          var xVall = 0;
+          var yVall1 = 0;
+          var yVall2 = 0;
+          var yVall3 = 0;
+
+          var updateCompChart = function (count) {
+
+            count = count || 1;
+
+            for (var j = 0; j < count; j++) {
+              yVall1 = stratCAPwCost[xVall];
+              yVall2 = stratMidCAPwCost[xVall];
+              yVall3 = stratLongCAPwCost[xVall];
+
+              compPoints1.push({
+                x: xVall * dt,
+                y: yVall1
+              });
+              compPoints2.push({
+                x: xVall * dt,
+                y: yVall2
+              });
+              compPoints3.push({
+                x: xVall * dt,
+                y: yVall3
+              });
+
+              xVall++;
+
+            }
+
+            chartComp.options.data[0].legendText = "10-day update interval: " + yVall1.toFixed(2);
+            chartComp.options.data[1].legendText = "50-day update interval: " + yVall2.toFixed(2);
+            chartComp.options.data[2].legendText = "100-day update interval: " + yVall3.toFixed(2);
+            chartComp.render();
+
+          };
+
+        //START SIMULATION**********************************************************************
+
+        var updateInterval = 1000;
+        updateCompChart();
+        var interval = setInterval(function(){updateCompChart();}, updateInterval);
+
+        intervalCounter = 0;
+        //var interval = setInterval(function(){updateChart(); updateBarChart(); updateCostChart(); updateCompChart();intervalCounter = intervalCounter + 1; if(intervalCounter == 39){stopSimulation()}}, updateInterval);
+
+        function stopSimulation(){
+          clearInterval(interval)
+        }
+
+        $('#stop').click(function(){
+          clearInterval(interval)
+        })
+
+      }
+
+    </script>
+  </body>
+</html>

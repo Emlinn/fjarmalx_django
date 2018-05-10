@@ -15,6 +15,7 @@ from django.urls import reverse
 
 from .forms import RiskFreeRateForm
 from .forms import StratForm
+from .forms import CompForm
 
 NOW = datetime.now()
 
@@ -28,7 +29,7 @@ DEFAULT_TODATESTRAT = "1.1.2018" #1.1.2015
 DEFAULT_LENGTH = 996 #995
 HEADERS = {
     'Accept': 'text/json',
-    'Authorization': 'GUSER-5ae827ae-1665-4629-83b9-f1a463e2c613'
+    'Authorization': 'GUSER-e8e26d23-2d9e-45db-a81e-9b65d34877e5'
 }
 SINGLE_STOCK_URL = "https://genius3p.livemarketdata.com/datacloud/Rest.ashx/NASDAQOMXNordicSharesEOD/EODPricesSDD?symbol={0}&fromdate={1}&todate={2}"
 
@@ -396,7 +397,7 @@ def strat(request):
             stratMidW = stratMidW.tolist()
             stratLongW = stratLongW.tolist()
             return render(request, 'strat.html', {
-            
+
                 'dt' : dt,
                 'indexCAP': indexCAP,
                 'stratW' : stratW,
@@ -412,6 +413,90 @@ def strat(request):
                 'stratLongCAPwCost' : stratLongCAPwCost,
                 'tradingLongCost' : tradingLongCost,
                 'stratForm' : form,
+                'whatStrat' : strat,
+
+            })
+
+def comp(request):
+    if request.method == 'POST':
+        form = CompForm(request.POST)
+        if form.is_valid:
+            #return HttpResponseRedirect('/marketport/?rate={0}&capital={1}'.format(request.POST.get(newComission,newCapital)))
+            return HttpResponseRedirect('/comp/?comission={0}&capital={1}&pick_strat={2}&pick_date={3}'.format(request.POST.get('comission'),request.POST.get('capital'),request.POST.get('pick_strat'),request.POST.get('pick_date')))
+    else:
+        dt = 5
+        DEFAULT_INTERVAL = 100 #User input
+        INITIAL_CAPITAL = 1000000 #User input
+        COMISSION = 0.025 #User input
+        DEFAULT_STRAT = 0
+        DEFAULT_RF = 0.0002 #User input
+
+        comm = request.GET.get('comission', COMISSION)
+        comm = float(comm)
+        initCAP = request.GET.get('capital', INITIAL_CAPITAL)
+        initCAP = int(initCAP)
+        rf = request.GET.get('rate', DEFAULT_RF)
+        rf = float(rf)
+        strat = request.GET.get('pick_strat', DEFAULT_STRAT)
+        updateInterval = request.GET.get('pick_date', DEFAULT_INTERVAL)
+        updateInterval = int(updateInterval)
+
+        form = CompForm()
+
+        #Strategies Functions
+        if strat == 0:
+            return render(request, 'comp.html', {
+                'CompForm' : form,
+                'whatStrat' : strat,
+            })
+
+        elif strat == "comp":
+            stockData = getStocksForStrat()
+            df = pd.DataFrame.from_dict(stockData, orient = 'columns') #Max. 830 rows and 9 columns for current selection
+            priceData = df.iloc[600:900, 0:16]
+
+            indexDf =  pd.read_csv('fjarmal/index.csv', encoding = 'latin-1')
+            indexData = indexDf.iloc[600:900, 1:2]
+
+            comm = request.GET.get('comission', COMISSION)
+            comm = float(comm)
+            initCAP = request.GET.get('capital', INITIAL_CAPITAL)
+            initCAP = int(initCAP)
+            rf = request.GET.get('rate', DEFAULT_RF)
+            rf = float(rf)
+            strat = request.GET.get('pick_strat', DEFAULT_STRAT)
+            updateInterval = request.GET.get('pick_date', DEFAULT_INTERVAL)
+            updateInterval = int(updateInterval)
+
+            updateInterval = 10;
+            updateMidInterval = 50;
+            updateLongInterval = 100;
+
+            indexCAP = indexStrat(indexData, dt, updateInterval, initCAP, comm, rf)
+
+            stratW, stratRet, stratCAP, stratCAPwCost, tradingCost = momentumStrat(priceData, dt, updateInterval, initCAP, comm, rf)
+            stratMidW, stratMidRet, stratMidCAP, stratMidCAPwCost, tradingMidCost = momentumStrat(priceData, dt, updateMidInterval, initCAP, comm, rf)
+            stratLongW, stratLongRet, stratLongCAP, stratLongCAPwCost, tradingLongCost = momentumStrat(priceData, dt, updateLongInterval, initCAP, comm, rf)
+            stratW = stratW.tolist()
+            stratMidW = stratMidW.tolist()
+            stratLongW = stratLongW.tolist()
+            return render(request, 'comp.html', {
+
+                'dt' : dt,
+                'indexCAP': indexCAP,
+                'stratW' : stratW,
+                'stratCAP' : stratCAP,
+                'stratCAPwCost' : stratCAPwCost,
+                'tradingCost' : tradingCost,
+                'stratMidW' : stratMidW,
+                'stratMidCAP' : stratMidCAP,
+                'stratMidCAPwCost' : stratMidCAPwCost,
+                'tradingMidCost' : tradingMidCost,
+                'stratLongW' : stratLongW,
+                'stratLongCAP' : stratLongCAP,
+                'stratLongCAPwCost' : stratLongCAPwCost,
+                'tradingLongCost' : tradingLongCost,
+                'CompForm' : form,
                 'whatStrat' : strat,
 
             })

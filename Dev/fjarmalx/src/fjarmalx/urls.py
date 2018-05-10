@@ -7,6 +7,7 @@ from fjarmal.views import market
 from fjarmal.views import about
 from fjarmal.views import data
 from fjarmal.views import strat
+from fjarmal.views import comp
 from django.conf.urls.static import static
 
 urlpatterns = [
@@ -16,5 +17,6 @@ urlpatterns = [
     path('strat/', strat),
     path('about/', about),
     path('help/', data),
-    path('<slug:input_symbol>', home)
+    path('<slug:input_symbol>', home),
+    path('comp/', comp),
 ]
