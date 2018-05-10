@@ -51,24 +51,12 @@
                   Strategies
                 </a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <span data-feather="shield"></span>
-                  Risk
-                </a>
-              </li>
             <li class="nav-item">
               <a class="nav-link" href="/about/">
                 <span data-feather="github"></span>
                 About us
               </a>
             </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/help/">
-                  <span data-feather="help-circle"></span>
-                  Help
-                </a>
-              </li>
             </ul>
           </div>
         </nav>
@@ -96,9 +84,6 @@
                       {% endif %}
                   </form><br />
                   </div>
-                  <div class = "col-sm-12" id = "chartContainer" style="height: 300px; width: 100%;"></div>
-                  <div class = "col-sm-8" id = "barContainer" style="height: 300px; width: 100%;"></div>
-                  <div class = "col-sm-4" id = "costContainer" style="height: 300px; width: 100%;"></div>
                     {% if whatStrat == 0 %}
                           <div id="w">
                               <div class="notify successbox">
@@ -110,6 +95,9 @@
                               </div>
                           </div><!-- @end #w -->
                           {% endif %}
+                          <div class = "col-sm-12" id = "chartContainer" style="height: 300px; width: 100%;"></div>
+                          <div class = "col-sm-8" id = "barContainer" style="height: 300px; width: 100%;"></div>
+                          <div class = "col-sm-4" id = "costContainer" style="height: 300px; width: 100%;"></div>
                   </div>
               </div>
             </div>
