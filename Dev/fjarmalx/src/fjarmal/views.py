@@ -255,6 +255,7 @@ def strat(request):
 
             comm = request.GET.get('comission', COMISSION)
             comm = float(comm)
+            comm = comm/100
             initCAP = request.GET.get('capital', INITIAL_CAPITAL)
             initCAP = int(initCAP)
             rf = request.GET.get('rate', DEFAULT_RF)
@@ -274,14 +275,6 @@ def strat(request):
                 'stratCAP' : stratCAP,
                 'stratCAPwCost' : stratCAPwCost,
                 'tradingCost' : tradingCost,
-                'stratMidW' : 0,
-                'stratMidCAP' : 0,
-                'stratMidCAPwCost' : 0,
-                'tradingMidCost' :0,
-                'stratLongW':0,
-                'stratLongCAP':0,
-                'stratLongCAPwCost':0,
-                'tradingLongCost':0,
                 'stratForm' : form,
                 'whatStrat' : strat,
             })
@@ -294,6 +287,7 @@ def strat(request):
 
             comm = request.GET.get('comission', COMISSION)
             comm = float(comm)
+            comm = comm/100
             initCAP = request.GET.get('capital', INITIAL_CAPITAL)
             initCAP = int(initCAP)
             rf = request.GET.get('rate', DEFAULT_RF)
@@ -314,14 +308,6 @@ def strat(request):
                 'stratCAP' : stratCAP,
                 'stratCAPwCost' : stratCAPwCost,
                 'tradingCost' : tradingCost,
-                'stratMidW' : 0,
-                'stratMidCAP' : 0,
-                'stratMidCAPwCost' : 0,
-                'tradingMidCost' :0,
-                'stratLongW':0,
-                'stratLongCAP':0,
-                'stratLongCAPwCost':0,
-                'tradingLongCost':0,
                 'stratForm' : form,
                 'whatStrat' : strat,
             })
@@ -334,6 +320,7 @@ def strat(request):
 
             comm = request.GET.get('comission', COMISSION)
             comm = float(comm)
+            comm = comm/100
             initCAP = request.GET.get('capital', INITIAL_CAPITAL)
             initCAP = int(initCAP)
             rf = request.GET.get('rate', DEFAULT_RF)
@@ -354,19 +341,11 @@ def strat(request):
                 'stratCAP' : stratCAP,
                 'stratCAPwCost' : stratCAPwCost,
                 'tradingCost' : tradingCost,
-                'stratMidW' : 0,
-                'stratMidCAP' : 0,
-                'stratMidCAPwCost' : 0,
-                'tradingMidCost' :0,
-                'stratLongW':0,
-                'stratLongCAP':0,
-                'stratLongCAPwCost':0,
-                'tradingLongCost':0,
                 'stratForm' : form,
                 'whatStrat' : strat,
             })
 
-        elif strat == "comp":
+        elif strat == "strat4":
             stockData = getStocksForStrat()
             df = pd.DataFrame.from_dict(stockData, orient = 'columns') #Max. 830 rows and 9 columns for current selection
             priceData = df.iloc[600:900, 0:16]
@@ -376,6 +355,7 @@ def strat(request):
 
             comm = request.GET.get('comission', COMISSION)
             comm = float(comm)
+            comm = comm/100
             initCAP = request.GET.get('capital', INITIAL_CAPITAL)
             initCAP = int(initCAP)
             rf = request.GET.get('rate', DEFAULT_RF)
@@ -384,18 +364,10 @@ def strat(request):
             updateInterval = request.GET.get('pick_date', DEFAULT_INTERVAL)
             updateInterval = int(updateInterval)
 
-            updateInterval = 10;
-            updateMidInterval = 50;
-            updateLongInterval = 100;
-
             indexCAP = indexStrat(indexData, dt, updateInterval, initCAP, comm, rf)
-
-            stratW, stratRet, stratCAP, stratCAPwCost, tradingCost = momentumStrat(priceData, dt, updateInterval, initCAP, comm, rf)
-            stratMidW, stratMidRet, stratMidCAP, stratMidCAPwCost, tradingMidCost = momentumStrat(priceData, dt, updateMidInterval, initCAP, comm, rf)
-            stratLongW, stratLongRet, stratLongCAP, stratLongCAPwCost, tradingLongCost = momentumStrat(priceData, dt, updateLongInterval, initCAP, comm, rf)
+            stratW, stratRet, stratCAP, stratCAPwCost, tradingCost = momentumStratWeight(priceData, dt, updateInterval, initCAP, comm, rf)
             stratW = stratW.tolist()
-            stratMidW = stratMidW.tolist()
-            stratLongW = stratLongW.tolist()
+
             return render(request, 'strat.html', {
 
                 'dt' : dt,
@@ -404,14 +376,6 @@ def strat(request):
                 'stratCAP' : stratCAP,
                 'stratCAPwCost' : stratCAPwCost,
                 'tradingCost' : tradingCost,
-                'stratMidW' : stratMidW,
-                'stratMidCAP' : stratMidCAP,
-                'stratMidCAPwCost' : stratMidCAPwCost,
-                'tradingMidCost' : tradingMidCost,
-                'stratLongW' : stratLongW,
-                'stratLongCAP' : stratLongCAP,
-                'stratLongCAPwCost' : stratLongCAPwCost,
-                'tradingLongCost' : tradingLongCost,
                 'stratForm' : form,
                 'whatStrat' : strat,
 
@@ -433,6 +397,7 @@ def comp(request):
 
         comm = request.GET.get('comission', COMISSION)
         comm = float(comm)
+        comm = comm/100
         initCAP = request.GET.get('capital', INITIAL_CAPITAL)
         initCAP = int(initCAP)
         rf = request.GET.get('rate', DEFAULT_RF)
@@ -460,6 +425,7 @@ def comp(request):
 
             comm = request.GET.get('comission', COMISSION)
             comm = float(comm)
+            comm = comm/100
             initCAP = request.GET.get('capital', INITIAL_CAPITAL)
             initCAP = int(initCAP)
             rf = request.GET.get('rate', DEFAULT_RF)

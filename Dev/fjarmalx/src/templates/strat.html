@@ -87,7 +87,7 @@
                       <input class="btn-sm btn-outline-danger" type="submit" value="Submit" id="form_button_margin" />
                       <input class="btn-sm btn-outline-danger" type="submit" value="Stop Sim." id="stop" />
                   </form><br />
-                  {% if whatStrat == "strat1" or whatStrat == "strat2" or whatStrat == "strat3" %}
+                  {% if whatStrat == "strat1" or whatStrat == "strat2" or whatStrat == "strat3" or whatStrat == "strat4" %}
                   <div class = "col-sm-12" id = "chartContainer" style="height: 300px; width: 100%;"></div>
                   <div class = "row">
                     <div class = "col-sm-8" id = "barContainer" style="height: 300px; width: 100%;"></div>
@@ -140,15 +140,10 @@
       var stratCAP = {{ stratCAP }}
       var stratCAPwCost = {{ stratCAPwCost }}
       var tradingCost = {{ tradingCost }}
-      //Mid update Interval
-
-
 
 
       window.onload = function(){
         //STRATEGY COMPARISSON************************************************************************
-        var whatStrat = "{{whatStrat}}"
-        if(whatStrat === "strat1" || "strat2") {
 
           var dataPoints1 = [];
           var dataPoints2 = [];
@@ -231,7 +226,7 @@
 
             chart.options.data[0].legendText = "Evolution Trading Strat. (w/o cost): " + yVal1.toFixed(2);
             chart.options.data[1].legendText = "Evolution Trading Strat. (w. cost): " + yVal2.toFixed(2);
-            chart.options.data[2].legendText = "OMXI 8 Index " + yVal3.toFixed(2);
+            chart.options.data[2].legendText = "OMXI 8 Index " + yVal3;
             chart.render();
 
           };
@@ -372,21 +367,17 @@
             costChart.render()
 
           };
-      }
-
-        //UPDATE INTERVAL COMPARISSON***********************************************************
-
 
         //START SIMULATION**********************************************************************
 
         var updateInterval = 1000;
-        updateChart(dataLength);
-        updateBarChart();
-        updateCostChart();
+          intervalCounter = 0;
+          updateChart(dataLength);
+          updateBarChart();
+          updateCostChart();
+          var interval = setInterval(function(){updateChart(); updateBarChart(); updateCostChart();intervalCounter = intervalCounter + 1; if(intervalCounter == 39){stopSimulation()}}, updateInterval);
 
-        var interval = setInterval(function(){updateChart(); updateBarChart(); updateCostChart();intervalCounter = intervalCounter + 1; if(intervalCounter == 39){stopSimulation()}}, updateInterval);
 
-        intervalCounter = 0;
         //var interval = setInterval(function(){updateChart(); updateBarChart(); updateCostChart(); updateCompChart();intervalCounter = intervalCounter + 1; if(intervalCounter == 39){stopSimulation()}}, updateInterval);
 
         function stopSimulation(){
